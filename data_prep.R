@@ -13,22 +13,23 @@ ops <- ops |> na.omit()
 load("data_test.rdata")
 
 # Wykresy korelacji danych
-#ops |> select(-date) |> ggpairs()
+# ops |> select(-date) |> ggpairs()
 
 # Korelacje ze zmiennymi dla grimm_pm10
-ops |> select_if(is.numeric) |> 
-  cor(use = "complete.obs") |> 
-  as.data.frame() |> 
+ops |>
+  select_if(is.numeric) |>
+  cor(use = "complete.obs") |>
+  as.data.frame() |>
   select(grimm_pm10)
 
 # Usuwamy pres_sea ponieważ nie ma w danych z zewnętrznej stacji
 # pres_sea jest skorelowane mocno z pres
-ops |> 
-  select_if(is.numeric) |> 
-  cor(use = "complete.obs") |> 
-  as.data.frame() |> 
-  rownames_to_column(var = "rowname") |> 
-  filter(rowname == "pres") |> 
+ops |>
+  select_if(is.numeric) |>
+  cor(use = "complete.obs") |>
+  as.data.frame() |>
+  rownames_to_column(var = "rowname") |>
+  filter(rowname == "pres") |>
   select(pres_sea)
 model_station_data <- ops |> select(-pres_sea)
 
@@ -37,7 +38,7 @@ model_station_data <- ops |> select(-pres_sea)
 # update_role(ops_pm10, rh, temp, wd, prec, new_role="ID") bo są słabo skorelowane lub za bardzo
 
 data_split <- initial_split(
-  data = ops,
+  data = model_station_data,
   prop = 3 / 4,
   strata = grimm_pm10
 )
@@ -52,21 +53,25 @@ val_set <- validation_split(
 
 
 # Nie używamy póki co (jak skończymy modele to wtedy coś z tym będziemy robić)
-other_station_data <- 
-  ops_data |> 
+other_station_data <-
+  ops_data |>
   mutate(
-    ops_pm10 = ops_bam$ops_pm10[1:nrow(ops_data)]) |> 
+    ops_pm10 = ops_bam$ops_pm10[1:nrow(ops_data)]
+  ) |>
   select(colnames(model_station_data))
 
 
-rm(list = c("ops", "bam", "ops_bam", "ops_data"))
+rm(list = c("ops", "bam", "ops_bam", "ops_data", "data_split", "model_station_data"))
+
+save(train_data, test_data, val_set, other_station_data, file = "prepared_data.RData")
 
 # resample = val_set
 # tune - 1 parametr modelu
-# set_engine(num.threads = parallel::detectCores() - 1,) 
+# set_engine(num.threads = parallel::detectCores() - 1,)
 
 # Jakub - decision_tree()
 # Daria - random_forest()
 # Maria - cubist_rules()
 # Mateusz - xgboost()
+
 
