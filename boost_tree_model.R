@@ -72,3 +72,9 @@ xgb_recipe |>
     prep() |>
     bake(train_data) |>
     glimpse()
+
+# %% Create a workflow for xgboost model
+xgb_workflow <-
+    workflow() |>
+    add_recipe(xgb_recipe) |>
+    add_model(xgb_mod)
