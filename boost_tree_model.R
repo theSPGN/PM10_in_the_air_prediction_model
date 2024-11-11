@@ -1,4 +1,4 @@
-# load used libraries
+# %% load used libraries and data
 library(tidymodels) # collection of packages for modeling
 library(dplyr) # data manipulation
 library(xgboost) # engine for boost_tree model
@@ -31,8 +31,7 @@ id_variables <- train_data |>
     select(grimm_pm10) |>
     abs() |>
     filter(grimm_pm10 < 0.3) |>
-    rownames() |>
-    c("ops_pm10")
+    rownames()
 
 # define roles and steps of recipe
 
