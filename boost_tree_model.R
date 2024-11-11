@@ -17,7 +17,8 @@ xgb_mod <-
     boost_tree(
         trees = 500,
         mtry = 12,
-        min_n = tune()
+        min_n = tune(),
+        learn_rate = 0.1
     ) |>
     set_engine(
         engine = "xgboost",
@@ -60,13 +61,12 @@ id_variables <- train_data |>
 xgb_recipe <-
     recipe(grimm_pm10 ~ ., data = train_data) |>
     update_role(all_of(id_variables), new_role = "ID") |>
-    step_date(date, features = c("month", "dow")) |>
     step_time(date, features = c("hour")) |>
     step_rm(date) |>
     step_dummy(all_nominal_predictors()) |>
     step_zv(all_predictors()) |>
     step_impute_knn(all_predictors()) |>
-    step_pca(threshold = 0.7)
+    step_pca(threshold = 0.9)
 
 summary(xgb_recipe)
 
@@ -136,7 +136,7 @@ xgb_fit |>
 xgb_fit |>
     collect_metrics() |>
     select(-.config, -.estimator, ) |>
-    add_row(.metric = "mae", .estimate=xgb_mae$mean)
+    add_row(.metric = "mae", .estimate = xgb_mae$mean)
 
 # %% predictions
 xgb_fit |> collect_predictions()
@@ -145,6 +145,7 @@ save(xgb_fit, file = "last_fit_xgboost.rdata")
 
 # %% predictions for outer station data
 xgb_workflow_ <- extract_workflow(xgb_fit)
+other_station_data <- other_station_data |> na.omit()
 
 predictions <- predict(xgb_workflow_, new_data = other_station_data)$.pred
 
@@ -156,3 +157,16 @@ results <- other_station_data |>
 metrics <- results |>
     metrics(truth = grimm_pm10, estimate = .pred)
 print(metrics)
+
+ggplot(results, aes(x = grimm_pm10, y = .pred)) +
+    geom_point() +
+    labs(
+        title = "Wykres grimm_pm10 i .pred od daty",
+        x = "real",
+        y = "pred",
+        color = "Legenda"
+    ) +
+    geom_abline(slope = 1, intercept = 0, color = "blue", linetype = "solid") +
+    geom_abline(slope = 0.5, intercept = 0, color = "red", linetype = "solid") +
+    geom_abline(slope = 2, intercept = 0, color = "green", linetype = "solid") +
+    coord_fixed()
