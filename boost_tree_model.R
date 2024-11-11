@@ -4,6 +4,7 @@ library(dplyr) # data manipulation
 library(xgboost) # engine for boost_tree model
 library(yardstick) # metrics for model
 library(vip) # parameters importance
+library(ggplot) # plotting library
 
 load("prepared_data.RData")
 
@@ -122,3 +123,19 @@ xgb_best_mod <-
 xgb_fit <-
     xgb_best_mod |>
     last_fit(split = data_split)
+
+# %% vip
+xgb_fit |>
+    extract_fit_parsnip() |>
+    vip(num_features = 20) +
+    scale_x_discrete(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    geom_boxplot(color = "black", fill = "grey85")
+# %% metrics
+xgb_fit |>
+    collect_metrics() |>
+    select(-.config) |>
+    mutate(model = "xgb_boost")
+
+# %%
+save(xgb_fit, file = "last_fit_xgboost.rdata")
