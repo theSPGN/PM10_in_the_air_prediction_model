@@ -57,9 +57,9 @@ other_station_data <-
   select(colnames(model_station_data))
 
 
-rm(list = c("ops", "bam", "ops_bam", "ops_data", "data_split", "model_station_data"))
+rm(list = c("ops", "bam", "ops_bam", "ops_data", "model_station_data"))
 
-save(train_data, test_data, val_set, other_station_data, file = "prepared_data.RData")
+save(train_data, test_data, val_set, other_station_data, data_split, file = "prepared_data.RData")
 
 # resample = val_set
 # tune - 1 parametr modelu

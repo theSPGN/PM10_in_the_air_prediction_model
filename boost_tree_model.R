@@ -6,19 +6,22 @@ library(yardstick) # metrics for model
 library(vip) # parameters importance
 
 load("prepared_data.RData")
+
+# %%
+set.seed(213)
 # %% Create model
 # define xgboost/boost_tree model with one parameter tuned
 # use all cores of cpu to train model faster
 # set mode to regression problem
 xgb_mod <-
     boost_tree(
-        trees = 1000,
-        mtry = 8,
+        trees = 500,
+        mtry = 12,
         min_n = tune()
     ) |>
     set_engine(
         engine = "xgboost",
-        num.threads = parallel:detectCores() - 1
+        num.threads = parallel::detectCores() - 1
     ) |>
     set_mode("regression")
 # %% Create recipe
@@ -77,3 +80,45 @@ xgb_workflow <-
     workflow() |>
     add_recipe(xgb_recipe) |>
     add_model(xgb_mod)
+
+# %% Making a grid for xgboost tuning
+xgb_grid <- tibble(min_n = seq(1, 20, length.out = 20))
+
+# %% resample model
+xgb_res <-
+    xgb_workflow |>
+    tune_grid(
+        resamples = val_set,
+        grid = xgb_grid,
+        control = control_grid(save_pred = TRUE),
+        metrics = metric_set(mae)
+    )
+
+xgb_top_models <-
+    xgb_res |>
+    show_best(metric = "mae", n = Inf) |>
+    arrange(mean) |>
+    mutate(mean = mean |> round(x = _, digits = 3))
+
+xgb_top_models |> gt::gt()
+
+xgb_best <-
+    xgb_res |> select_best()
+
+xgb_res |>
+    show_best(metric = "mae", n = Inf) |>
+    filter(.config == xgb_best$.config) |>
+    select(
+        min_n,
+        .metric,
+        mean
+    )
+# %% Final model
+xgb_best_mod <-
+    xgb_workflow |>
+    finalize_workflow(xgb_best)
+
+# %% Last fit
+xgb_fit <-
+    xgb_best_mod |>
+    last_fit(split = data_split)
