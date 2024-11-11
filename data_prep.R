@@ -1,4 +1,3 @@
-library(tidyverse)
 library(tidymodels)
 library(openair)
 library(ggplot2)
@@ -13,7 +12,7 @@ ops <- ops |> na.omit()
 load("data_test.rdata")
 
 # Wykresy korelacji danych
-# ops |> select(-date) |> ggpairs()
+# ops |> select(-date, - ops_pm10) |> ggpairs()
 
 # Korelacje ze zmiennymi dla grimm_pm10
 ops |>
@@ -31,11 +30,11 @@ ops |>
   rownames_to_column(var = "rowname") |>
   filter(rowname == "pres") |>
   select(pres_sea)
-model_station_data <- ops |> select(-pres_sea)
+model_station_data <- ops |> select(-pres_sea, -ops_pm10)
 
 # wyjście grimm_pm10
 # step_pca/step_corr, step_date(month), step_time(hour), step_rm(date) użyć tych kroków na pewno proponuję
-# update_role(ops_pm10, rh, temp, wd, prec, new_role="ID") bo są słabo skorelowane lub za bardzo
+# update_role(rh, temp, wd, prec, new_role="ID") bo są słabo skorelowane lub za bardzo
 
 data_split <- initial_split(
   data = model_station_data,
@@ -55,9 +54,6 @@ val_set <- validation_split(
 # Nie używamy póki co (jak skończymy modele to wtedy coś z tym będziemy robić)
 other_station_data <-
   ops_data |>
-  mutate(
-    ops_pm10 = ops_bam$ops_pm10[1:nrow(ops_data)]
-  ) |>
   select(colnames(model_station_data))
 
 
@@ -73,5 +69,3 @@ save(train_data, test_data, val_set, other_station_data, file = "prepared_data.R
 # Daria - random_forest()
 # Maria - cubist_rules()
 # Mateusz - xgboost()
-
-
