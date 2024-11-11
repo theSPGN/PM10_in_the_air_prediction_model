@@ -77,3 +77,10 @@ xgb_workflow <-
     workflow() |>
     add_recipe(xgb_recipe) |>
     add_model(xgb_mod)
+
+# %% Making a grid for xgboost tuning
+xgb_grid <-
+    grid_regular(
+        min_n(),
+        levels = 10
+    )
