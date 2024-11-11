@@ -4,7 +4,6 @@ library(dplyr) # data manipulation
 library(xgboost) # engine for boost_tree model
 library(yardstick) # metrics for model
 library(vip) # parameters importance
-library(ggplot) # plotting library
 
 load("prepared_data.RData")
 
@@ -67,7 +66,7 @@ xgb_recipe <-
     step_dummy(all_nominal_predictors()) |>
     step_zv(all_predictors()) |>
     step_impute_knn(all_predictors()) |>
-    step_pca(threshold = 0.85)
+    step_pca(threshold = 0.7)
 
 summary(xgb_recipe)
 
@@ -106,7 +105,7 @@ xgb_top_models |> gt::gt()
 xgb_best <-
     xgb_res |> select_best()
 
-xgb_res |>
+xgb_mae <- xgb_res |>
     show_best(metric = "mae", n = Inf) |>
     filter(.config == xgb_best$.config) |>
     select(
@@ -114,6 +113,8 @@ xgb_res |>
         .metric,
         mean
     )
+
+xgb_mae
 # %% Final model
 xgb_best_mod <-
     xgb_workflow |>
@@ -134,8 +135,24 @@ xgb_fit |>
 # %% metrics
 xgb_fit |>
     collect_metrics() |>
-    select(-.config) |>
-    mutate(model = "xgb_boost")
+    select(-.config, -.estimator, ) |>
+    add_row(.metric = "mae", .estimate=xgb_mae$mean)
 
+# %% predictions
+xgb_fit |> collect_predictions()
 # %%
 save(xgb_fit, file = "last_fit_xgboost.rdata")
+
+# %% predictions for outer station data
+xgb_workflow_ <- extract_workflow(xgb_fit)
+
+predictions <- predict(xgb_workflow_, new_data = other_station_data)$.pred
+
+results <- other_station_data |>
+    mutate(.pred = predictions)
+
+# results |> select(grimm_pm10, .pred)
+
+metrics <- results |>
+    metrics(truth = grimm_pm10, estimate = .pred)
+print(metrics)
