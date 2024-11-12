@@ -15,10 +15,10 @@ set.seed(213)
 # set mode to regression problem
 xgb_mod <-
     boost_tree(
-        trees = 500,
-        mtry = 12,
+        trees = tune(),
+        mtry = tune(),
         min_n = tune(),
-        learn_rate = 0.1
+        learn_rate = tune()
     ) |>
     set_engine(
         engine = "xgboost",
@@ -43,8 +43,6 @@ id_variables <- train_data |>
 # step_dummy() xgboost require dummy unlike other tree based models
 # works similar to one-hot-encoding
 # step_zv() might be helpful because erase data that occurred once in set
-# step_impute_knn() required in xgboost (unlike in other tree based models)
-# imputing missing data using nearest neighbors
 # step_pca() might be helpful in xgboost model, because it de-correlate data
 # threshold define % of total variance that should be covered
 
@@ -61,11 +59,11 @@ id_variables <- train_data |>
 xgb_recipe <-
     recipe(grimm_pm10 ~ ., data = train_data) |>
     update_role(all_of(id_variables), new_role = "ID") |>
+    step_naomit() |>
     step_time(date, features = c("hour")) |>
     step_rm(date) |>
     step_dummy(all_nominal_predictors()) |>
     step_zv(all_predictors()) |>
-    step_impute_knn(all_predictors()) |>
     step_pca(threshold = 0.9)
 
 summary(xgb_recipe)
@@ -82,7 +80,18 @@ xgb_workflow <-
     add_model(xgb_mod)
 
 # %% Making a grid for xgboost tuning
-xgb_grid <- tibble(min_n = seq(1, 20, length.out = 20))
+min_n_values <- seq(1, 5, length.out = 5)
+trees_values <- seq(50, 1000, length.out = 10)
+mtry_values <- seq(5, 20, length.out = 10)
+learn_rate_value <- seq(0.1, 0.5, length.out = 10)
+
+xgb_grid <- crossing(
+    min_n = min_n_values,
+    trees = trees_values,
+    mtry = mtry_values,
+    learn_rate = learn_rate_value
+)
+
 
 # %% resample model
 xgb_res <-
@@ -91,7 +100,7 @@ xgb_res <-
         resamples = val_set,
         grid = xgb_grid,
         control = control_grid(save_pred = TRUE),
-        metrics = metric_set(mae)
+        metrics = metric_set(mae, rmse, rsq)
     )
 
 xgb_top_models <-
@@ -136,7 +145,7 @@ xgb_fit |>
 xgb_fit |>
     collect_metrics() |>
     select(-.config, -.estimator, ) |>
-    add_row(.metric = "mae", .estimate = xgb_mae$mean)
+    add_row(.metric = c("mae", "rmse", "rsq"), .estimate = xgb_mae$mean)
 
 # %% predictions
 xgb_fit |> collect_predictions()
@@ -145,7 +154,6 @@ save(xgb_fit, file = "last_fit_xgboost.rdata")
 
 # %% predictions for outer station data
 xgb_workflow_ <- extract_workflow(xgb_fit)
-other_station_data <- other_station_data |> na.omit()
 
 predictions <- predict(xgb_workflow_, new_data = other_station_data)$.pred
 
