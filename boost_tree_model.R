@@ -178,3 +178,28 @@ ggplot(results, aes(x = grimm_pm10, y = .pred)) +
     geom_abline(slope = 0.5, intercept = 0, color = "red", linetype = "solid") +
     geom_abline(slope = 2, intercept = 0, color = "green", linetype = "solid") +
     coord_fixed()
+
+# %% Retraining the model
+set.seed(213)
+new_split <- initial_split(
+    other_station_data,
+    prop = 3 / 4,
+    strata = grimm_pm10
+)
+new_train <- training(new_split)
+new_test <- testing(new_split)
+
+combined_train <- bind_rows(train_data, new_train)
+xgb_new_fit <- xgb_workflow_ |>
+    fit(data = combined_train)
+
+new_predictions <- predict(xgb_new_fit, new_data = new_test)$.pred
+new_results <- tibble(new_test, new_predictions)
+new_metrics <-
+    new_results |>
+    metrics(
+        truth = grimm_pm10,
+        estimate = new_predictions
+    )
+
+print(new_metrics)
