@@ -50,8 +50,12 @@ val_set <- validation_split(
   strata = grimm_pm10
 )
 
+ops_data <- ops_data |>
+  select(-grimm_pm10) |>
+  left_join(bam, by = "date") |>
+  rename(grimm_pm10 = bam_pm10) |>
+  na.omit()
 
-# Nie używamy póki co (jak skończymy modele to wtedy coś z tym będziemy robić)
 other_station_data <-
   ops_data |>
   select(colnames(model_station_data))
