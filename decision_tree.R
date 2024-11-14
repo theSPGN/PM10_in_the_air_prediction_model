@@ -18,7 +18,8 @@ recipe_tree <- recipe(grimm_pm10 ~ ., data = train_data)  |>
   step_corr(all_numeric(), threshold = 0.85) |> 
   step_normalize(all_numeric(), -all_outcomes()) |> 
   step_nzv(all_predictors()) |> 
-  step_pca(all_numeric(), threshold = 0.95)
+  step_pca(all_numeric(), threshold = 0.95) |> 
+  step_dummy(all_nominal()) 
 
 # Sprawdzenie receptury
 prepped_recipe <- prep(recipe_tree, training = train_data)
@@ -53,3 +54,33 @@ tree_grid <- grid_regular(
   min_n(range = c(2, 10)),        
   levels = 5
 )
+
+# Ustawienie walidacji krzyżowej dla trenowania
+set.seed(123)
+folds <- vfold_cv(train_data, v = 5, strata = grimm_pm10)
+
+# Strojenie parametrów przy użyciu siatki i walidacji krzyżowej
+tune_results <- tune_grid(
+  workflow_tree,
+  resamples = folds,
+  grid = tree_grid,
+  metrics = metric_set(rmse, rsq)   
+)
+
+# Wyświetlenie najlepszych wyników
+show_best(tune_results, "rmse")
+
+# Wybór najlepszej kombinacji parametrów na podstawie RMSE
+best_params <- select_best(tune_results, "rmse")
+
+# Finalizacja workflow z najlepszymi parametrami
+final_workflow <- finalize_workflow(workflow_tree, best_params)
+
+# Dopasowanie ostatecznego modelu do całego zbioru treningowego
+final_fit <- fit(final_workflow, data = train_data)
+
+# Ocena ostatecznego modelu na zbiorze testowym
+final_results <- last_fit(final_workflow, split = data_split)
+
+# Wyświetlenie końcowej wydajności na zbiorze testowym
+collect_metrics(final_results)
