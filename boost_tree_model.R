@@ -142,15 +142,16 @@ xgb_fit |>
     scale_y_continuous(expand = c(0, 0)) +
     geom_boxplot(color = "black", fill = "grey85")
 # %% metrics
-xgb_fit |>
+xgb_metrics <- xgb_fit |>
     collect_metrics() |>
     select(-.config, -.estimator, ) |>
-    add_row(.metric = c("mae", "rmse", "rsq"), .estimate = xgb_mae$mean)
+    add_row(.metric = c("mae"), .estimate = xgb_mae$mean)
 
+print(xgb_metrics)
 # %% predictions
 xgb_fit |> collect_predictions()
 # %%
-save(xgb_fit, file = "last_fit_xgboost.rdata")
+save(xgb_fit, xgb_metrics, file = "last_fit_xgboost.rdata")
 
 # %% predictions for outer station data
 xgb_workflow_ <- extract_workflow(xgb_fit)
@@ -162,9 +163,9 @@ results <- other_station_data |>
 
 # results |> select(grimm_pm10, .pred)
 
-metrics <- results |>
+other_s_metrics <- results |>
     metrics(truth = grimm_pm10, estimate = .pred)
-print(metrics)
+print(other_s_metrics)
 
 ggplot(results, aes(x = grimm_pm10, y = .pred)) +
     geom_point() +
@@ -203,3 +204,30 @@ new_metrics <-
     )
 
 print(new_metrics)
+
+# %% metrics comparison
+xgb_metrics <- xgb_metrics |>
+    mutate(fit = "model_station_data(test_set)")
+other_s_metrics <- other_s_metrics |>
+    mutate(fit = "other_station_data") |>
+    select(-.estimator)
+new_metrics <- new_metrics |>
+    mutate(fit = "other_station_data(after retrain)") |>
+    select(-.estimator)
+bind_rows(
+    xgb_metrics,
+    other_s_metrics,
+    new_metrics
+)
+
+#   .metric .estimate fit
+#   <chr>       <dbl> <chr>
+# 1 rmse        7.83  model_station_data(test_set)
+# 2 rsq         0.940 model_station_data(test_set)
+# 3 mae         3.88  model_station_data(test_set)
+# 4 rmse        8.21  other_station_data
+# 5 rsq         0.852 other_station_data
+# 6 mae         6.71  other_station_data
+# 7 rmse        5.06  other_station_data(after retrain)
+# 8 rsq         0.931 other_station_data(after retrain)
+# 9 mae         4.13  other_station_data(after retrain)
