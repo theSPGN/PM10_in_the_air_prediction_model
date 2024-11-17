@@ -27,3 +27,4 @@ po/*~
 rsconnect/
 
 !prepared_data.RData
+*.RData
