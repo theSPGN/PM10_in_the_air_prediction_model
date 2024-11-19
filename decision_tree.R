@@ -16,10 +16,10 @@ recipe_tree <- recipe(grimm_pm10 ~ ., data = train_data) |>
   step_rm(date) |> 
   step_date(all_nominal(), features = c("dow", "month")) |> 
   step_time(all_nominal(), features = c("hour")) |> 
-  step_corr(all_numeric(), -all_outcomes(), threshold = 0.85) |> 
+  step_corr(all_numeric(), -all_outcomes(), threshold = 0.9) |> 
   step_normalize(all_numeric(), -all_outcomes()) |> 
   step_nzv(all_predictors()) |> 
-  step_pca(all_numeric(), -all_outcomes(), threshold = 0.95) |> 
+  step_pca(all_numeric(), -all_outcomes(), threshold = 0.98) |> 
   step_dummy(all_nominal())
 
 # Sprawdzenie receptury
@@ -88,25 +88,21 @@ collect_metrics(final_results)
 save(final_results, file = "last_fit_decision_tree.RData")
 
 
-# dla level 5 oraz 5 folds
-# .metric .estimator .estimate .config             
-# <chr>   <chr>          <dbl> <chr>               
-#   1 rmse    standard      14.7   Preprocessor1_Model1
-# 2 rsq     standard       0.848 Preprocessor1_Model1
+# Podsumowanie 
+# Level 5 i 5 grup walidacji krzyżowej (5 folds):
+# Model osiągnął RMSE = 14.7 oraz R² = 0.848, co wskazuje na dobrą zgodność
+# przewidywań z rzeczywistością oraz stosunkowo niską średnią różnicę kwadratową błędów.
 
-# dla level 10 oraz 10 folds
-# .metric .estimator .estimate .config             
-# <chr>   <chr>          <dbl> <chr>               
-#   1 rmse    standard      14.7   Preprocessor1_Model1
-# 2 rsq     standard       0.847 Preprocessor1_Model1
+# Level 10 i 10 grup walidacji krzyżowej (10 folds): 
+# Wyniki były niemal identyczne, z RMSE = 14.7 oraz R² = 0.847,
+# co sugeruje stabilność modelu niezależnie od liczby grup w walidacji.
 
 
-# dla level 10 oraz 10 folds Zamiast val_set używany jest vfold_cv() z 10 grupami do walidacji krzyżowej.
-# .metric .estimator .estimate .config             
-# <chr>   <chr>          <dbl> <chr>               
-#   1 rmse    standard      14.7   Preprocessor1_Model1
-# 2 rsq     standard       0.847 Preprocessor1_Model1
+# Dla nowej receptury, która jest zmieniona w tym commicie:
 
+# zmienione step_corr threshold z 0.85 -> 0.9 oraz step_pca threshold z 0.95 -> 0.98
 
-# Najniższe wartości RMSE otrzymano dla algorytmu X" Wartość RMSE wynosiła. Najwyższe wartość RMSE otrzymano dla ... . Różnica w wartośc RMSE była ... jaka ?
-# wnioski dodam jak przeprowadzę jeszcze kilka eksperymentów
+# Level 10 i 10 grup walidacji krzyżowej (10 folds): 
+# Nowa receptura przyniosła znaczącą poprawę wyników, 
+#z RMSE = 11.2 oraz R² = 0.911!!!, co wskazuje na lepsze dopasowanie modelu do danych.
+#Tylko czy nie za dobre? 
