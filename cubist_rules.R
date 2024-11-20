@@ -19,9 +19,9 @@ cr_mod <- cubist_rules(
 
 #making recipe
 #1
-cr1_recipe <- recipe(grimm_pm10 ~., data = train_data,
-                  step_pca(all_numeric_predictors(), num_comp = 4),
-                  update_role(date, new_role = "ID"))
+cr1_recipe <- recipe(grimm_pm10 ~., data = train_data) |>
+                  step_pca(all_numeric_predictors(), num_comp = 4) |>
+                  update_role(date, new_role = "ID")
 #2
 cr2_recipe <- recipe(grimm_pm10 ~n_0750+ws+pres, data = train_data)
 
@@ -35,9 +35,10 @@ workflow_2 <- workflow() |>
   add_model(cr_mod)
 #building grid
 grid <- grid_regular(
-  committees(range = c(1, 100)),
+  committees(range = c(1, 10)),
   neighbors(range = c(0,9)),
-  max_rules(range = c(1,10))
+  max_rules(range = c(1,10)),
+  levels =5
 )
 
 #tuning
@@ -48,4 +49,4 @@ cr1_res <-
             grid = grid,
             control = control_grid(save_pred = T),
             metrics = metric_set(rmse, rsq, mae))
-rlang::last_error()
+
