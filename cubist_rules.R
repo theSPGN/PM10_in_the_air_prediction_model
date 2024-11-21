@@ -64,27 +64,27 @@ cr1_res <-
   tune_grid(resamples = val_set, 
             grid = grid,
             control = control_grid(save_pred = T),
-            metrics = metric_set(rsq, mae))
+            metrics = metric_set(rmse, rsq, mae))
 cr2_res <- 
   workflow_2 |> 
   tune_grid(resamples = val_set, 
             grid = grid,
             control = control_grid(save_pred = T),
-            metrics = metric_set(rsq, mae))
+            metrics = metric_set(rmse, rsq, mae))
 
 cr3_res <- 
   workflow_3 |> 
   tune_grid(resamples = val_set, 
             grid = grid,
             control = control_grid(save_pred = T),
-            metrics = metric_set(rsq, mae))
+            metrics = metric_set(rmse, rsq, mae))
 
 cr4_res <- 
   workflow_4 |> 
   tune_grid(resamples = val_set, 
             grid = grid,
             control = control_grid(save_pred = T),
-            metrics = metric_set(rsq, mae))
+            metrics = metric_set(rmse, rsq, mae))
 
 #selecting best parameters
 cr1_b<- select_best(cr1_res)
@@ -96,23 +96,23 @@ cr4_b<- select_best(cr4_res)
 cr1_fit<-
   cr1_res|> collect_predictions(parameters = cr1_b)|>
   mutate(results = "cr1")
-metrics(cr1_fit, truth = grimm_pm10, estimate = .pred)
+print(metrics(cr1_fit, truth = grimm_pm10, estimate = .pred))
 
 cr2_fit<-
   cr2_res|> collect_predictions(parameters = cr2_b)|>
   mutate(results = "cr2")
-metrics(cr2_fit, truth = grimm_pm10, estimate = .pred)
+print(metrics(cr2_fit, truth = grimm_pm10, estimate = .pred))
 
 cr3_fit<-
   cr3_res|> collect_predictions(parameters = cr3_b)|>
   mutate(results = "cr3")
-metrics(cr3_fit, truth = grimm_pm10, estimate = .pred)
+print(metrics(cr3_fit, truth = grimm_pm10, estimate = .pred))
 
 #the best one
 cr4_fit<-
   cr4_res|> collect_predictions(parameters = cr4_b)|>
   mutate(results = "cr4")
-metrics(cr4_fit, truth = grimm_pm10, estimate = .pred)
+print(metrics(cr4_fit, truth = grimm_pm10, estimate = .pred))
 
 #plotting two best model against actual data
 bind_rows(cr1_fit,cr4_fit) |> 
@@ -124,3 +124,25 @@ bind_rows(cr1_fit,cr4_fit) |>
 
 # saving last fits
 save(cr4_recipe,workflow_4, cr4_res, cr4_b, cr4_fit, file = "cubist_rules_best_fit.RData")
+
+# Final fits
+cr1_bmwf <- workflow_1 |>
+  finalize_workflow(cr1_b)|>
+  last_fit(split=data_split)
+
+print(cr1_bmwf$.metrics)
+# A tibble: 2 × 4
+# .metric .estimator .estimate .config             
+# <chr>   <chr>          <dbl> <chr>               
+#  1 rmse    standard      17.2   Preprocessor1_Model1
+#  2 rsq     standard       0.711 Preprocessor1_Model1
+cr4_bmwf <- workflow_4 |>
+  finalize_workflow(cr4_b) |>
+  last_fit(split=data_split)
+
+print(cr4_bmwf$.metrics)
+# A tibble: 2 × 4
+#.metric .estimator .estimate .config             
+#<chr>   <chr>          <dbl> <chr>               
+#  1 rmse    standard       9.57  Preprocessor1_Model1
+#  2 rsq     standard       0.914 Preprocessor1_Model1
