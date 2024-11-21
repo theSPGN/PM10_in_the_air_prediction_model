@@ -25,6 +25,10 @@ vignettes/*.pdf
 docs/
 po/*~
 rsconnect/
+*.css
+*.js
+*.woff
 
 !prepared_data.RData
+*.RData
 !last_fit_xgboost.rdata

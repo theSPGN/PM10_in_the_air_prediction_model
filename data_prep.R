@@ -1,7 +1,9 @@
 library(tidymodels)
+library(parsnip)
 library(openair)
 library(ggplot2)
 library(GGally)
+library(factoextra)
 
 # Wczytanie danych do trenowania modelu
 load("ops.RData")
@@ -30,10 +32,15 @@ ops |>
   rownames_to_column(var = "rowname") |>
   filter(rowname == "pres") |>
   select(pres_sea)
+
+#dane do testowania
 model_station_data <- ops |> select(-pres_sea, -ops_pm10)
 
-# wyjście grimm_pm10
-# step_pca/step_corr, step_date(month), step_time(hour), step_rm(date) użyć tych kroków na pewno proponuję
+#małe pca
+pca_result <- prcomp(model_station_data[,-1], center = TRUE, scale. = TRUE)
+summary(pca_result)
+pca_result$rotation
+fviz_eig(pca_result, addlabels = TRUE)
 # update_role(rh, temp, wd, prec, new_role="ID") bo są słabo skorelowane lub za bardzo
 
 data_split <- initial_split(
@@ -65,12 +72,13 @@ rm(list = c("ops", "bam", "ops_bam", "ops_data", "model_station_data"))
 
 save(train_data, test_data, val_set, other_station_data, data_split, file = "prepared_data.RData")
 
+# Notatki
+# output grimm_pm10
+# dobra korelacja cząstek n0200-n1000 oraz wind speed
 # resample = val_set
-# tune - 1 parametr modelu
 # set_engine(num.threads = parallel::detectCores() - 1,)
 
 # Jakub - decision_tree()
 # Daria - random_forest()
 # Maria - cubist_rules()
 # Mateusz - xgboost()
-

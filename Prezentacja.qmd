@@ -1,0 +1,23 @@
+---
+title: "Prezentacja finałowa"
+author: "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
+format: html
+---
+
+# Zespół
+
+# Opisanie narzędzi
+
+# Opisanie problemu
+
+# Opisanie danych
+
+# Wybrany model
+## Czemu ten jest super
+
+## na czym polega
+
+## czemu inne są gorsze
+
+# Jak sobie radzi z resztą danych
+
