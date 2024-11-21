@@ -31,3 +31,4 @@ rsconnect/
 
 !prepared_data.RData
 *.RData
+!last_fit_xgboost.rdata
