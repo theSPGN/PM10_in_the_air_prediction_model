@@ -5,6 +5,7 @@ library(ranger)
 library(yardstick)
 library(vip)
 library(recipes)
+library(corrplot)
 
 # Set seed for reproducibility
 set.seed(213)
@@ -14,10 +15,28 @@ load("prepared_data.RData")
 
 # Preprocessing
 
-# Remove zero-variance columns
-zv_cols <- sapply(train_data, function(x) length(unique(x)) == 1)
-train_data <- train_data[, !zv_cols]
+# # Remove zero-variance columns
+# zv_cols <- sapply(train_data, function(x) length(unique(x)) == 1)
+# train_data <- train_data[, !zv_cols]
 
+# Dodanie wizualizacji korelacji
+# Oblicz macierz korelacji dla zmiennych numerycznych
+cor_matrix <- cor(select_if(train_data, is.numeric), use = "complete.obs")
+
+# Wykres korelacji z corrplot
+corrplot(
+    cor_matrix,
+    method = "color", # styl wykresu
+    col = colorRampPalette(c("#d73027", "white", "#1a9850"))(200),
+    type = "upper", # rysuje tylko górny trójkąt
+    addCoef.col = "black", # dodaje wartości korelacji
+    tl.cex = 0.8, # wielkość tekstu etykiet
+    number.cex = 0.7, # wielkość tekstu wartości
+    title = "Macierz korelacji",
+    mar = c(0, 0, 1, 0)
+)
+
+# brakuje ustawienia id_variables jako ID: funkcja update_role
 # Remove low-correlation variables
 id_variables <- train_data |>
     select_if(is.numeric) |>
@@ -33,10 +52,33 @@ rf_recipe <- recipe(
     grimm_pm10 ~ .,
     data = train_data
 ) |>
+    update_role(all_of(id_variables), new_role = "ID") |>
+    step_naomit() |>
+    step_time(date, features = c("hour")) |>
     step_rm(all_of(id_variables)) |>
+    step_zv() |>
     step_normalize(all_numeric_predictors()) |>
-    step_corr(all_numeric_predictors(), threshold = 0.8) |>
-    step_pca(all_numeric_predictors(), threshold = 0.9)
+    step_rm(date) |>
+    step_corr(all_numeric_predictors(), threshold = 0.8) # |> # corr or pca?
+# step_pca(all_numeric_predictors(), threshold = 0.9)
+
+# Summary of recipe
+rf_recipe |> summary()
+
+# Dopasowanie przepisu do danych
+pca_prep <- rf_recipe |> prep(training = train_data)
+
+# Wyciągnięcie zmiennych po PCA
+pca_vars <- tidy(pca_prep, number = 5) # Zakładamy, że `step_pca` jest piątym krokiem
+
+# Podsumowanie
+pca_removed <- pca_vars |>
+    filter(terms != "") |> # Filtrujemy tylko istotne składowe
+    select(component, terms) # Składowa i odpowiadające zmienne
+
+# Wyświetlenie zmiennych powiązanych z każdą składową
+print(pca_removed)
+
 
 # Model
 rf_model <- rand_forest(
@@ -101,12 +143,6 @@ model_metrics <- predictions |>
     metrics(truth = grimm_pm10, estimate = .pred)
 
 print(model_metrics)
-# # A tibble: 3 × 3
-#   .metric .estimator .estimate
-#   <chr>   <chr>          <dbl>
-# 1 rmse    standard       6.30
-# 2 rsq     standard       0.965
-# 3 mae     standard       4.73
 
 # Plot predictions vs truth
 predictions |>
@@ -118,8 +154,34 @@ predictions |>
         x = "Truth (Actual Values)",
         y = "Predictions"
     ) +
+    geom_abline(slope = 0.5, intercept = 0, color = "#63438b", linetype = "dashed") +
+    labs(
+        title = "Predictions vs. Truth",
+        x = "Truth (Actual Values)",
+        y = "Predictions"
+    ) +
+    geom_abline(slope = 2, intercept = 0, color = "#63438b", linetype = "dashed") +
+    labs(
+        title = "Predictions vs. Truth",
+        x = "Truth (Actual Values)",
+        y = "Predictions"
+    ) +
     theme_minimal()
 
 # Save the predictions and workflow
 save(predictions, file = "predictions.RData")
 save(rf_workflow, file = "rf_workflow.RData")
+
+
+# PCA
+#   <chr>   <chr>          <dbl>
+# 1 rmse    standard       6.40
+# 2 rsq     standard       0.964
+# 3 mae     standard       4.58
+
+# Corr
+#   .metric .estimator .estimate
+#   <chr>   <chr>          <dbl>
+# 1 rmse    standard       6.30
+# 2 rsq     standard       0.965
+# 3 mae     standard       4.73
