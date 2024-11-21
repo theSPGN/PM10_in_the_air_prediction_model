@@ -27,3 +27,4 @@ po/*~
 rsconnect/
 
 !prepared_data.RData
+!last_fit_xgboost.rdata
