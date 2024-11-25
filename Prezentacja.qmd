@@ -1,23 +1,135 @@
 ---
-title: "Prezentacja finałowa"
-author: "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
-format: html
+mainfont: Lato
+title: "Prezentacja końcowa"
+subtitle: "Zdalne Repozytoria i systemy kontroli wersji w projektach uczenia maszynowego"
+author: 
+  - "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
+format:
+  html: 
+    toc: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "click to see code"
+    linestretch: 1.2
+    other-links:
+      - text: Repozytorium GitHub
+        href: https://github.com/ZRiSKW/g1_calpm
+code-link: true
+execute:
+  eval: true
+  warning: false
+  error: false
+  cache: false
 ---
 
-# Zespół
+```{=html}
+<style type="text/css"> body {text-align: justify} </style>
+```
+## **Zespół**
 
-# Opisanie narzędzi
+Zespół nr 1 składa się czterech członków z czterech różnych wydziałów AGH. Poniższa tabela zawiera informacje na temat podziału obowiązków oraz przypisanych modeli.
 
-# Opisanie problemu
+|     Osoba     | Wydział | Zakres obowiązków                                                                                                                                                                |    Przypisany model    | Wynik końcowy modelu R² |
+|:------------:|:------------:|:--------------|:------------:|:----------------:|
+|  Daria Kokot  |  WFiIS  | Współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu, sprawdzenie najlepszego modelu na danych z innych stacji, wspóltworzenie końcowego projektu w Quatro |     Random Forest      |          0.965          |
+|  Maria Pruś   | WGGiOŚ  | Współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu, wspóltworzenie końcowego projektu w Quatro                                                           |      Cubist rules      |          0.914          |
+|  Jakub Wilk   | WGGiIŚ  | Współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu                                                                                                       |     Decision Tree      |          0.911          |
+| Mateusz Zajda |  WIMiR  | Pre-processing danych, współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu, zarządzanie zespołem, administracja repozytorium na GitHub                     | Extreme Gradient Boost |          0.940          |
 
-# Opisanie danych
+## **Cel projektu**
 
-# Wybrany model
-## Czemu ten jest super
+Celem projektu było stworzenie modelu i predykcja stężenia PM10 w powietrzu na podstawie dostarczonych danych. Zbiór danych zawierał daty pomiaru, pomiary cząstek z podziałem na frakcje, wartości temperatury oraz dane meteorologiczne. Dane, na których tworzony był model, pochodziły ze stacji monitoringu jakości powietrza przy al. Krasińskiego w Krakowie. Drugim otrzymanym zestawem danych był zestaw weryfikacyjny z danymi pochodzącymi z innej lokalizacji.
 
-## na czym polega
+Dydaktyczny zakres projektu w zakresie uczenia maszynowego
 
-## czemu inne są gorsze
+-   Analiza danych
+-   Utworzenie receptur modeli uczenia maszynowego
+-   Utworzenie modeli uczenia maszynowego
+-   Dopasowanie danych - trenowanie modelu
+-   Predykcja dla danych testowych oraz porównanie z rzeczywistymi wynikami
+-   Podsumowanie modeli oraz wybór najlepszego dla powierzonego zadania
+-   Sporządzenie prezentacji w formie pliku qmd (z generowalnym plikiem html)
 
-# Jak sobie radzi z resztą danych
+## **Opisanie narzędzi**
+
+### Komunikacja
+Zespół w celu komunikacji używał przede wszystkim chatu na <b><span style="color:#00693c; font-family:'Lato';">MS Teams</span></b>. Omawiane tam były sprawy bieżące, treść spotkań, luźniejsze uwagi, potrzeby odnośnie danych czy kodu. 
+W celu ***poważniejszej*** komunikacji na temat opracowyanego projektu tj. kodu służył <b><span style="color:#00693c; font-family:'Lato';">GitHub</span></b>, a mianowicie zakładane <b><span style="color:#a71930ff; font-family:'Lato';">issues</span></b>
+
+::: {.callout-note collapse=true}
+W początkowym stadium współpracy używane było jeszcze narzędzie dostarczane przez Microsoft tj. <b><span style="color:#00693c; font-family:'Lato';">Planner</span></b>, ale zamysł ten umarł samoistnie.
+:::
+### Kontrola wersji
+W celu pracy na projekcie z systemem kontroli wersji Git zespół używał, w zależności od osoby:
+
+* <b><span style="color:#00693c; font-family:'Lato';">Git Bash</span></b>
+* <b><span style="color:#00693c; font-family:'Lato';">GitHub Desktop</span></b>
+
+Każde z wyżej wymienionych narzędzi było jednak podlinkowane do zdalnego repozytorium na <b><span style="color:#00693c; font-family:'Lato';">GitHub</span></b>, co umożliwało płynną współpracę.
+
+### Praca z R
+W celu pracy z językiem R zespół używał, w zależności od osoby:
+
+* <b><span style="color:#00693c; font-family:'Lato';">RStudio</span></b>
+* <b><span style="color:#00693c; font-family:'Lato';">Visual Studio Code</span></b>
+
+Używana wersja języka R to 4.3.3. Używane pakiety różniły się w zależności od modelu, jednak wspólnym najważniejszym pakietem był <b><span style="color:#a71930ff; font-family:'Lato';">tidymodels</span></b>
+
+### Workflow
+
+Na pierwszym spotkaniu został ustalony wstępny workflow oraz zaplanowana praca. Jako że Agile nam niestraszny, po drodze nastąpiło kilka modyfikacji m. in. został opisany tylko najlepszy model (patrz sekcja <b>Wybrany Model</b>)
+![Pierwszy workflow](wf.png)
+Głównym założeniem był wstępny pre-processing danych, który wylądował potem na <i><b><span style="font-family:'Lato';">main</span></b></i>. Każdy model potem był opracowywany na osobnej gałęzi. Następnie wszystkie gałęzie z modelami zostały scalone. Ostatnią gałęzią, która powstała to <i><b><span style="font-family:'Lato';">QMD_project</span></b></i>, na której właśnie siedzę i opisuję ten projekt. Po wspólnej akceptacji gałąż ta zostanie scalona do <i><b><span style="font-family:'Lato';">main</span></b></i>.
+
+## **Opisanie danych**
+
+Poniżej znajduje się wycinek danych treningowych mający na celu przybliżenie zmiennych.
+W zależności od modelu różne zmienne były wykorzystywane. Zmienną, która była oznaczona jako **output** to grimm_pm10.
+```{r}
+library(dplyr)
+library(DT)
+load("prepared_data.RData")
+data<-datatable(head(train_data))
+data
+```
+W celu lepszego zrozumienia danych zespół wspólnie omówił zestaw. Podstawą interpretacji była tabela korelacji krzyżowej uwzględniajaca zmienne liczbowe. Tabela ta pokazuje wartości korelacji pomiędzy poszczególnymi zmiennymi, co umożliwia lepsze zrozumienie jak zmieniają się zmienne i jakie informacje niosą.
+
+![Tabela kroskorelacji](cross_cor.jpg)
+Im komórka bardziej zielona tym korelacja jest większa (negatywna lub pozytywna). Kilka wspólnych wniosków, na których budowane były potem modele:
+
+* Najwyższą korelację z grimm_pm10 mają cząstki największych frakcji (n_0250-n_1000.
+* Cząstki największych frakcji są ze sobą wysoko skorelowane (niosą tę samą informację)
+* Wysoką (negatywną) korelacją odznacza się prędkość wiatru
+* Mniejsze frakcje cząstek również można pogrupować na te wysoko ze sobą skorelowane (n_0044-n_0100; n_0120-n_0200)
+
+::: {.callout-note collapse=true}
+Tak, użyty został do tego Excel. Nie żałuję niczego.
+:::
+
+## **Wybrany model** [Daria, poniżej przykładowe akapity]
+
+### Czemu ten jest super
+
+### na czym polega i jaki jest wynik
+
+
+## Podsumowanie
+
+Trochę o projekcie liczbowo: 
+
+* Liczba założonych <b><span style="color:#a71930ff; font-family:'Lato';">issue</span></b> na GitHub: 6
+
+* Liczba założonych <b><span style="font-family:'Lato';">pull request</span></b> na GitHub: 9
+
+* Liczba swtorzonych gałęzi: 6 
+
+* Pierwszy commit: 24.10
+
+* Ostatni commit: 21.11
+
+Poniżej koncowy graf Git naszego projektu zawierające wszystkie commity oraz gałęzie.
+
+![Końcowy graph](graph.png)
+
+W większości założenia z początkowego workflowu zostały spełnione. Zmianą jednak jest praca na jednej gałęzi dotyczącej projektu końcowego, zamiast tworzenia gałęzi dla każdego współautorów z osobna i potem merge z <i><b><span style="font-family:'Lato';">main</span></i></b>. Również końcowe poprawianie modeli odbywało się już na głównej gałęzi.
 
