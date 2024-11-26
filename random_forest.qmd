@@ -1,4 +1,13 @@
-# Load necessary libraries
+---
+title: "Prezentacja finałowa - Las losowy"
+author: "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
+format: html
+---
+# Do stworzenia tego programu zostały wykorzystane biblioteki:
+```{r}
+#| results: hide
+#| message: false
+#| warning: false
 library(tidymodels)
 library(dplyr)
 library(ranger)
@@ -6,34 +15,52 @@ library(yardstick)
 library(vip)
 library(recipes)
 library(corrplot)
+```
 
-# Set seed for reproducibility
+
+# Do zapewnienia powtarzalności wyników ustawiono ziarno generatora liczb pseudolosowych
+
+```{r}
+#| results: hide
+#| message: false
+#| warning: false
 set.seed(213)
+```
 
-# Load pre-prepared data
+# Załadowano wcześniej przygotowane dane
+```{r}
+#| results: hide
+#| message: false
+#| warning: false
 load("prepared_data.RData")
+```
 
-# Preprocessing
-
-# Dodanie wizualizacji korelacji
-# Oblicz macierz korelacji dla zmiennych numerycznych
+# Obliczono macierz korelacji dla zmiennych numerycznych i przedstawiono ją na wykresie
+```{r}
+#| message: false
+#| warning: false
+# Macierz korelacji
 cor_matrix <- cor(select_if(train_data, is.numeric), use = "complete.obs")
 
 # Wykres korelacji z corrplot
 corrplot(
     cor_matrix,
-    method = "color", # styl wykresu
-    col = colorRampPalette(c("#d73027", "white", "#1a9850"))(200),
-    type = "upper", # rysuje tylko górny trójkąt
+    method = "color", 
+    col = colorRampPalette(c("#f5abec", "#7ec2ed", "#7b32a8"))(200),
+    type = "upper", 
     addCoef.col = "black", # dodaje wartości korelacji
     tl.cex = 0.8, # wielkość tekstu etykiet
+    tl.col = "black",
     number.cex = 0.7, # wielkość tekstu wartości
+    number.col = "black",
     title = "Macierz korelacji",
-    mar = c(0, 0, 1, 0)
+    mar = c(0, 0, 0, 0)
 )
-
-# brakuje ustawienia id_variables jako ID: funkcja update_role
-# Remove low-correlation variables
+```
+# Usunięcie zmiennych o niskiej korelacji
+```{r}
+#| message: false
+#| warning: false
 id_variables <- train_data |>
     select_if(is.numeric) |>
     cor(use = "complete.obs") |>
@@ -42,8 +69,35 @@ id_variables <- train_data |>
     abs() |>
     filter(grimm_pm10 < 0.3) |>
     rownames()
+```
 
-# Define the recipe
+# Zdefiniowanie receptury
+Receptura (recipe) została przygotowana z pakietem recipes. Receptury są przydatne w preprocessingu ze względu na powtarzalność przygotowania danych. 
+
+Przedstawiona receptura zawiera:
+- dane wejściowe train_data oraz zmienną docelową grimm_pm10
+
+- zmienne wymienione w wektorze id_variables są oznaczane jako zmienne o roli "ID". Dzięki temu receptura nie uwzględni ich w modelowaniu, ale pozwoli je zachować w danych
+
+- usunięcie obserwacji z brakującymi wartościami
+
+- ekstrakcja cechy "godzina" z kolumny date, zakładając, że jest to zmienna typu czasowego
+
+- usunięcie (podczas step_rm) zmiennych oznaczonych jako ID 
+
+- usunięcie zmiennych zerowej wariancji
+
+- normalizację predyktorów numerycznych tak, aby miały średnią 0 i odchylenie standardowe 1
+
+- usunięcie kolumny date po wyciągnięciu potrzebnych informacji czasowych w kroku wcześniejszym (step_time)
+
+- usunięcie silnie skorelowanych zmiennych, które mają współczynnik korelacji większy niż 0.8 (względem siebie nawzajem). Pomaga to zmniejszyć kolinearność w danych.
+
+- Zakomentowany krok, który włączałby analizę głównych składowych (PCA) dla zmiennych numerycznych, redukując wymiar danych. Progiem dla wyjaśnionej wariancji byłoby 90%. Jest zakomentowany, co oznacza, że w obecnym stanie receptura nie wykonuje PCA. step_pca i step_corr działają podobnie, ale niekoniecznie będą dobrze współpracować. Dlatego włączając PCA powinniśmy wyłączyć step_corr
+
+```{r}
+#| message: false
+#| warning: false
 rf_recipe <- recipe(
     grimm_pm10 ~ .,
     data = train_data
@@ -55,17 +109,26 @@ rf_recipe <- recipe(
     step_zv() |>
     step_normalize(all_numeric_predictors()) |>
     step_rm(date) |>
-    step_corr(all_numeric_predictors(), threshold = 0.8) # |> # corr or pca?
-# step_pca(all_numeric_predictors(), threshold = 0.9)
+    step_corr(all_numeric_predictors(), threshold = 0.8) 
+    # step_pca(all_numeric_predictors(), threshold = 0.9)
 
-# Summary of recipe
+    
+# Podsumowanie receptury
 rf_recipe |> summary()
+```
+
+
 
 # Dopasowanie przepisu do danych
+```{r}
+#| message: false
+#| warning: false
 pca_prep <- rf_recipe |> prep(training = train_data)
+```
 
-# Wyciągnięcie zmiennych po PCA
-pca_vars <- tidy(pca_prep, number = 5) # Zakładamy, że `step_pca` jest piątym krokiem
+
+<!-- # Wyciągnięcie zmiennych po PCA
+pca_vars <- tidy(pca_prep, number = 5) # Zakładamy, że `step_pca` jest piątym krokiem  
 
 # Podsumowanie
 pca_removed <- pca_vars |>
@@ -74,9 +137,14 @@ pca_removed <- pca_vars |>
 
 # Wyświetlenie zmiennych powiązanych z każdą składową
 print(pca_removed)
-
+ -->
 
 # Model
+Do wytrenowania najlepszego modelu wykorzystamy tuning hiperparametrów. Trzy kluczowe hiperparametry (mtry, min_n, trees) zostaną zoptymalizowane w procesie strojenia przez siatkę.
+Do treningu wykorzystane zostaną silnik ranger (wysokowydajna implementacja lasów losowych, dobrze przystosowana do dużych zbiorów danych) oraz zrównoleglenie obliczeń.
+```{r}
+#| message: false
+#| warning: false
 rf_model <- rand_forest(
     mode = "regression",
     mtry = tune(),
@@ -87,20 +155,33 @@ rf_model <- rand_forest(
         importance = "impurity",
         num.threads = parallel::detectCores() - 1
     )
+```
 
 # Workflow
+Łączy proces przetwarzania danych z receptury i model lasów losowych, upraszczając obsługę modelowania.
+```{r}
+#| message: false
+#| warning: false
 rf_workflow <- workflow() |>
     add_recipe(rf_recipe) |>
     add_model(rf_model)
+```
 
-# Hyperparameter tuning grid
+# Siatka do tuningu hiperparametrów
+Określa przestrzeń hiperparametrów do przetestowania w celu znalezienia optymalnych wartości mtry, min_n i trees.
+Wygenerowana siatka obejmuje wszystkie kombinacje parametrów w określonych zakresach i poziomach.
+```{r}
+#| message: false
+#| warning: false
 rf_grid <- grid_regular(
     mtry(range = c(2, 10)),
     min_n(range = c(1, 10)),
     trees(range = c(100, 300)),
     levels = 5
 )
+```
 
+<!--
 # Control settings to display progress and collect metrics
 control <- control_grid(verbose = TRUE, save_pred = TRUE, parallel_over = "everything")
 
@@ -180,4 +261,4 @@ save(rf_workflow, file = "rf_workflow.RData")
 #   <chr>   <chr>          <dbl>
 # 1 rmse    standard       6.30
 # 2 rsq     standard       0.965
-# 3 mae     standard       4.73
+# 3 mae     standard       4.73 -->
