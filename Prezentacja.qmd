@@ -106,12 +106,28 @@ Im komórka bardziej zielona tym korelacja jest większa (negatywna lub pozytywn
 Tak, użyty został do tego Excel. Nie żałuję niczego.
 :::
 
-## **Wybrany model** [Daria, poniżej przykładowe akapity]
+## **Wybrany model Random Forest** 
 
-### Czemu ten jest super
+Jak pokazuje trening las losowy sprawdził się najlepiej w naszym badaniu. Wpływ na to mogły mieć następujące czynniki:
 
-### na czym polega i jaki jest wynik
+- Las losowy jest algorytmem opartym na ensemble learning, czyli metodzie łączenia wyników wielu modeli w celu uzyskania lepszej ogólnej wydajności. Polega to na trenowaniu wielu drzew decyzyjnych na różnych podzbiorach danych. Następnie wyniki są agregowane. Zmniejsza ryzyko przeuczenia i poprawia stabilność modelu. 
 
+- Las losowy zwykle lepiej generalizuje niż drzewa decyzyjne. Szczególnie przy głębokich i złożonych architekturach drzew. Ponieważ las losowy łączy wyniki wielu drzew, ryzyko przeuczenia jest mniejsze. Las losowy jest bardziej odporny na różnorodne rodzaje danych, w tym dane z dużą zmiennością i szumem. 
+
+- Duża ilość zmiennych i interakcji międzu nimi są trudne do uchwycenia przez bardziej deterministyczne metody takie jak Cubist Rules czy proste drzewo decyzyjne. Z kolei las losowy, dzięki swojej strukturze ensemble, może lepiej uchwycić te zależności.
+
+- XGBoost jest jednym z najpotężniejszych algorytmów gradient boosting, często dającym bardzo dobre wyniki w różnych zadaniach, w naszym przykładzie sprawdził się bardzo podobnie do lasu losowego. Las losowy ma tendencję do bardziej stabilnych wyników bez zbyt dużej potrzeby kalibracji. Minimalna ‘wygrana’ lasu losowego mogła wynikać z nieodnalezienia optymalnych hiperparametrów XGBoost takich jak liczba drzew, współczynniki uczenia, czy maksymalna głębokość drzew.
+
+
+### Otrzymany wynik
+```{r}
+#| show: true
+#   .metric .estimator .estimate
+#   <chr>   <chr>          <dbl>
+# 1 rmse    standard       6.30
+# 2 rsq     standard       0.965
+# 3 mae     standard       4.73
+```
 
 ## Podsumowanie
 
