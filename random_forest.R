@@ -29,7 +29,7 @@ corrplot(
     col = colorRampPalette(c("#d73027", "white", "#1a9850"))(200),
     type = "upper", # rysuje tylko górny trójkąt
     addCoef.col = "black", # dodaje wartości korelacji
-    tl.cex = 0. 8, # wielkość tekstu etykiet
+    tl.cex = 0.8, # wielkość tekstu etykiet
     number.cex = 0.7, # wielkość tekstu wartości
     title = "Macierz korelacji",
     mar = c(0, 0, 1, 0)
@@ -182,7 +182,7 @@ predictions |>
         x = "Truth (Actual Values)",
         y = "Predictions"
     ) +
-    geom_cat(aes(x = grimm_pm10, y = .pred), cat = "maru") + # Add a cat at every point
+    geom_cat(aes(x = grimm_pm10, y = .pred), cat = "pusheen") + # Add a cat at every point
     theme_minimal() +
     geom_abline(slope = 0.5, intercept = 0, color = "#63438b", linetype = "dashed") +
     labs(
