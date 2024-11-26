@@ -1,11 +1,14 @@
 ---
 mainfont: Lato
-title: "Prezentacja końcowa"
+title: "Prezentacja końcowa - zespół nr I"
 subtitle: "Zdalne Repozytoria i systemy kontroli wersji w projektach uczenia maszynowego"
 author: 
   - "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
 format:
   html: 
+    theme: lightly,
+    fontcolor: rgb(78,61,66)
+    background-color: rgb(236,241,228)
     toc: true
     smooth-scroll: true
     code-fold: true
@@ -83,6 +86,8 @@ Głównym założeniem był wstępny pre-processing danych, który wylądował p
 
 ## **Opisanie danych**
 
+Pre-processing danych był wspólny dla całego zespołu i znajduje się on w pliku data_prep.R. W skrócie przygotowanie danych miało na celu załadowanie pliku ops.Rdata, usunięciu niepotrzebnych danych, podziale danych na zestawy treningowe, testowe, walidacyjne. Następnie połączono zbiór ops_data z ops_bam w celu przygotowania zestawu danych z innych stacji. Potrzebne dane zostały zapisane do pliku prepared_data.RData.
+
 Poniżej znajduje się wycinek danych treningowych mający na celu przybliżenie zmiennych.
 W zależności od modelu różne zmienne były wykorzystywane. Zmienną, która była oznaczona jako **output** to grimm_pm10.
 ```{r}
@@ -148,4 +153,18 @@ Poniżej koncowy graf Git naszego projektu zawierające wszystkie commity oraz g
 ![Końcowy graph](graph.png)
 
 W większości założenia z początkowego workflowu zostały spełnione. Zmianą jednak jest praca na jednej gałęzi dotyczącej projektu końcowego, zamiast tworzenia gałęzi dla każdego współautorów z osobna i potem merge z <i><b><span style="font-family:'Lato';">main</span></i></b>. Również końcowe poprawianie modeli odbywało się już na głównej gałęzi.
+
+## Wnioski
+
+### Daria
+
+
+### Maria
+
+Używałam RStudio w celu pracy z R ze względu na wygodę. Do Gita i zabawy ze zdalnym repozytorium używałam jednak GitHub Desktop - bardzo wygodne, całkiem czytelne, daje ostrzeżenia i wyskakujące okienka zanim się zrobi coś głupiego - dlatego na plus. Założyłam całe jedno issue dla siebie na GitHub dla bardzo głupiego błędu. Obyło się bez konfliktów, jednak w czasie pracy musiałam zaciągnąć do swojej gałęzi zmianę z main.
+
+### Jakub
+
+
+### Mateusz
 
