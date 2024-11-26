@@ -6,6 +6,9 @@ library(yardstick)
 library(vip)
 library(recipes)
 library(corrplot)
+install.packages("devtools") # If you don't have devtools installed
+devtools::install_github("R-CoderDotCom/ggcats") # Install ggcats from GitHub
+library(ggcats)
 
 # Set seed for reproducibility
 set.seed(213)
@@ -26,7 +29,7 @@ corrplot(
     col = colorRampPalette(c("#d73027", "white", "#1a9850"))(200),
     type = "upper", # rysuje tylko górny trójkąt
     addCoef.col = "black", # dodaje wartości korelacji
-    tl.cex = 0.8, # wielkość tekstu etykiet
+    tl.cex = 0. 8, # wielkość tekstu etykiet
     number.cex = 0.7, # wielkość tekstu wartości
     title = "Macierz korelacji",
     mar = c(0, 0, 1, 0)
@@ -58,22 +61,22 @@ rf_recipe <- recipe(
     step_corr(all_numeric_predictors(), threshold = 0.8) # |> # corr or pca?
 # step_pca(all_numeric_predictors(), threshold = 0.9)
 
-# Summary of recipe
-rf_recipe |> summary()
+# # Summary of recipe
+# rf_recipe |> summary()
 
-# Dopasowanie przepisu do danych
-pca_prep <- rf_recipe |> prep(training = train_data)
+# # Dopasowanie przepisu do danych
+# pca_prep <- rf_recipe |> prep(training = train_data)
 
-# Wyciągnięcie zmiennych po PCA
-pca_vars <- tidy(pca_prep, number = 5) # Zakładamy, że `step_pca` jest piątym krokiem
+# # Wyciągnięcie zmiennych po PCA
+# pca_vars <- tidy(pca_prep, number = 5) # Zakładamy, że `step_pca` jest piątym krokiem
 
-# Podsumowanie
-pca_removed <- pca_vars |>
-    filter(terms != "") |> # Filtrujemy tylko istotne składowe
-    select(component, terms) # Składowa i odpowiadające zmienne
+# # Podsumowanie
+# pca_removed <- pca_vars |>
+#     filter(terms != "") |> # Filtrujemy tylko istotne składowe
+#     select(component, terms) # Składowa i odpowiadające zmienne
 
-# Wyświetlenie zmiennych powiązanych z każdą składową
-print(pca_removed)
+# # Wyświetlenie zmiennych powiązanych z każdą składową
+# print(pca_removed)
 
 
 # Model
@@ -95,10 +98,15 @@ rf_workflow <- workflow() |>
 
 # Hyperparameter tuning grid
 rf_grid <- grid_regular(
-    mtry(range = c(2, 10)),
-    min_n(range = c(1, 10)),
-    trees(range = c(100, 300)),
-    levels = 5
+    # mtry(range = c(2, 10)),
+    # min_n(range = c(1, 10)),
+    # trees(range = c(100, 300)),
+    # levels = 5
+    
+    mtry(range = c(2, 2)),
+    min_n(range = c(1, 2)),
+    trees(range = c(100, 120)),
+    levels = 2
 )
 
 # Control settings to display progress and collect metrics
@@ -140,16 +148,42 @@ model_metrics <- predictions |>
 
 print(model_metrics)
 
-# Plot predictions vs truth
+# # Plot predictions vs truth
+# predictions |>
+#     ggplot(aes(x = grimm_pm10, y = .pred)) +
+#     geom_point(alpha = 0.6, color = "#00a2ff") +
+#     geom_abline(slope = 1, intercept = 0, color = "#63438b", linetype = "dashed") +
+#     labs(
+#         title = "Predictions vs. Truth",
+#         x = "Truth (Actual Values)",
+#         y = "Predictions"
+#     ) +
+#     geom_abline(slope = 0.5, intercept = 0, color = "#63438b", linetype = "dashed") +
+#     labs(
+#         title = "Predictions vs. Truth",
+#         x = "Truth (Actual Values)",
+#         y = "Predictions"
+#     ) +
+#     geom_abline(slope = 2, intercept = 0, color = "#63438b", linetype = "dashed") +
+#     labs(
+#         title = "Predictions vs. Truth",
+#         x = "Truth (Actual Values)",
+#         y = "Predictions"
+#     ) +
+#     theme_minimal()
+
+
 predictions |>
     ggplot(aes(x = grimm_pm10, y = .pred)) +
-    geom_point(alpha = 0.6, color = "#00a2ff") +
-    geom_abline(slope = 1, intercept = 0, color = "#63438b", linetype = "dashed") +
+    geom_point(alpha = 0.6, color = "#00a2ff") + # Blue points for predictions
+    geom_abline(slope = 1, intercept = 0, color = "#63438b", linetype = "dashed") + # 1:1 line
     labs(
-        title = "Predictions vs. Truth",
+        title = "Predictions vs. Truth with Cats at Every Point",
         x = "Truth (Actual Values)",
         y = "Predictions"
     ) +
+    geom_cat(aes(x = grimm_pm10, y = .pred), cat = "maru") + # Add a cat at every point
+    theme_minimal() +
     geom_abline(slope = 0.5, intercept = 0, color = "#63438b", linetype = "dashed") +
     labs(
         title = "Predictions vs. Truth",

@@ -264,22 +264,25 @@ print(model_metrics)
 ```{r}
 #| message: false
 #| warning: false
+
 predictions |>
     ggplot(aes(x = grimm_pm10, y = .pred)) +
-    geom_point(alpha = 0.6, color = "#7ec2ed") +
-    geom_abline(slope = 1, intercept = 0, color = "#7b32a8", linetype = "dashed") +
+    geom_point(alpha = 0.6, color = "#00a2ff") + # Blue points for predictions
+    geom_abline(slope = 1, intercept = 0, color = "#63438b", linetype = "dashed") + # 1:1 line
+    labs(
+        title = "Predictions vs. Truth with Cats at Every Point",
+        x = "Truth (Actual Values)",
+        y = "Predictions"
+    ) +
+    geom_cat(aes(x = grimm_pm10, y = .pred), cat = "pusheen") + # Add a cat at every point
+    theme_minimal() +
+    geom_abline(slope = 0.5, intercept = 0, color = "#63438b", linetype = "dashed") +
     labs(
         title = "Predictions vs. Truth",
         x = "Truth (Actual Values)",
         y = "Predictions"
     ) +
-    geom_abline(slope = 0.5, intercept = 0, color = "#7b32a8", linetype = "dashed") +
-    labs(
-        title = "Predictions vs. Truth",
-        x = "Truth (Actual Values)",
-        y = "Predictions"
-    ) +
-    geom_abline(slope = 2, intercept = 0, color = "#7b32a8", linetype = "dashed") +
+    geom_abline(slope = 2, intercept = 0, color = "#63438b", linetype = "dashed") +
     labs(
         title = "Predictions vs. Truth",
         x = "Truth (Actual Values)",
