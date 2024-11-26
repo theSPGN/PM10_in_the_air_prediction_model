@@ -168,3 +168,9 @@ Używałam RStudio w celu pracy z R ze względu na wygodę. Do Gita i zabawy ze 
 
 ### Mateusz
 
+W projekcie użyłem jako IDE oprogramowania Visual Studio Code. Nie obyło się bez problemów, głównie związanych z formatowaniem plików qmd, niemniej nadal uważam go za najlepsze środowisko do tworzenia projektów ze względu na możliwość dostosowania jego działania pod własne zachcianki oraz uniwersalność korzystania z wielu języków (co jest niewątpliwą przewagą nad np. RStudio, Pycharm itd.). Niewątpliwym atutem, który również przesądził w kwestii wyboru tego środowiska, była możliwość synchronizacji wszystkich dodatków, szaty graficznej itd. na wielu urządzeniach. 
+
+Skorzystałem również z oprogramowania Git bash (git-scm.com), ze względu na przyzwyczajenie wynikające z używania terminala z systemów unixowych. Zainstalowanie tego programu pozwala na wyświetlenie layoutu bash'a również w terminalu vscode i ułatwia znacząco obsługę gita w przypadku wystąpienia konfliktów. 
+
+Do sporządzenia workflow projektu skorzystałem z programu MS Visio, który w przystępny sposób pozwala na tworzenie schematów blokowych.
+
