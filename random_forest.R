@@ -15,10 +15,6 @@ load("prepared_data.RData")
 
 # Preprocessing
 
-# # Remove zero-variance columns
-# zv_cols <- sapply(train_data, function(x) length(unique(x)) == 1)
-# train_data <- train_data[, !zv_cols]
-
 # Dodanie wizualizacji korelacji
 # Oblicz macierz korelacji dla zmiennych numerycznych
 cor_matrix <- cor(select_if(train_data, is.numeric), use = "complete.obs")

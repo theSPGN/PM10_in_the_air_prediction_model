@@ -1,0 +1,311 @@
+---
+title: "Prezentacja finałowa - Las losowy"
+author: "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
+format: html
+---
+# Do stworzenia tego programu zostały wykorzystane biblioteki:
+```{r}
+#| results: hide
+#| message: false
+#| warning: false
+library(tidymodels)
+library(dplyr)
+library(ranger)
+library(yardstick)
+library(vip)
+library(recipes)
+library(corrplot)
+```
+
+
+# Do zapewnienia powtarzalności wyników ustawiono ziarno generatora liczb pseudolosowych
+
+```{r}
+#| results: hide
+#| message: false
+#| warning: false
+set.seed(213)
+```
+
+# Załadowano wcześniej przygotowane dane
+```{r}
+#| results: hide
+#| message: false
+#| warning: false
+load("prepared_data.RData")
+```
+
+# Obliczono macierz korelacji dla zmiennych numerycznych i przedstawiono ją na wykresie
+```{r}
+#| message: false
+#| warning: false
+# Macierz korelacji
+cor_matrix <- cor(select_if(train_data, is.numeric), use = "complete.obs")
+
+# Wykres korelacji z corrplot
+corrplot(
+    cor_matrix,
+    method = "color", 
+    col = colorRampPalette(c("#f5abec", "#7ec2ed", "#7b32a8"))(200),
+    type = "upper", 
+    addCoef.col = "black", # dodaje wartości korelacji
+    tl.cex = 0.8, # wielkość tekstu etykiet
+    tl.col = "black",
+    number.cex = 0.7, # wielkość tekstu wartości
+    number.col = "black",
+    title = "Macierz korelacji",
+    mar = c(0, 0, 0, 0)
+)
+```
+# Usunięcie zmiennych o niskiej korelacji
+```{r}
+#| message: false
+#| warning: false
+id_variables <- train_data |>
+    select_if(is.numeric) |>
+    cor(use = "complete.obs") |>
+    as.data.frame() |>
+    select(grimm_pm10) |>
+    abs() |>
+    filter(grimm_pm10 < 0.3) |>
+    rownames()
+```
+
+# Zdefiniowanie receptury
+Receptura (recipe) została przygotowana z pakietem recipes. Receptury są przydatne w preprocessingu ze względu na powtarzalność przygotowania danych. 
+
+Przedstawiona receptura zawiera:
+- dane wejściowe train_data oraz zmienną docelową grimm_pm10
+
+- zmienne wymienione w wektorze id_variables są oznaczane jako zmienne o roli "ID". Dzięki temu receptura nie uwzględni ich w modelowaniu, ale pozwoli je zachować w danych
+
+- usunięcie obserwacji z brakującymi wartościami
+
+- ekstrakcja cechy "godzina" z kolumny date, zakładając, że jest to zmienna typu czasowego
+
+- usunięcie (podczas step_rm) zmiennych oznaczonych jako ID 
+
+- usunięcie zmiennych zerowej wariancji
+
+- normalizację predyktorów numerycznych tak, aby miały średnią 0 i odchylenie standardowe 1
+
+- usunięcie kolumny date po wyciągnięciu potrzebnych informacji czasowych w kroku wcześniejszym (step_time)
+
+- usunięcie silnie skorelowanych zmiennych, które mają współczynnik korelacji większy niż 0.8 (względem siebie nawzajem). Pomaga to zmniejszyć kolinearność w danych.
+
+- Zakomentowany krok, który włączałby analizę głównych składowych (PCA) dla zmiennych numerycznych, redukując wymiar danych. Progiem dla wyjaśnionej wariancji byłoby 90%. Jest zakomentowany, co oznacza, że w obecnym stanie receptura nie wykonuje PCA. step_pca i step_corr działają podobnie, ale niekoniecznie będą dobrze współpracować. Dlatego włączając PCA powinniśmy wyłączyć step_corr
+
+```{r}
+#| message: false
+#| warning: false
+rf_recipe <- recipe(
+    grimm_pm10 ~ .,
+    data = train_data
+) |>
+    update_role(all_of(id_variables), new_role = "ID") |>
+    step_naomit() |>
+    step_time(date, features = c("hour")) |>
+    step_rm(all_of(id_variables)) |>
+    step_zv() |>
+    step_normalize(all_numeric_predictors()) |>
+    step_rm(date) |>
+    step_corr(all_numeric_predictors(), threshold = 0.8) 
+    # step_pca(all_numeric_predictors(), threshold = 0.9)
+
+    
+# Podsumowanie receptury
+rf_recipe |> summary()
+```
+
+
+
+# Dopasowanie przepisu do danych
+```{r}
+#| message: false
+#| warning: false
+pca_prep <- rf_recipe |> prep(training = train_data)
+```
+
+
+<!-- # Wyciągnięcie zmiennych po PCA
+pca_vars <- tidy(pca_prep, number = 5) # Zakładamy, że `step_pca` jest piątym krokiem  
+
+# Podsumowanie
+pca_removed <- pca_vars |>
+    filter(terms != "") |> # Filtrujemy tylko istotne składowe
+    select(component, terms) # Składowa i odpowiadające zmienne
+
+# Wyświetlenie zmiennych powiązanych z każdą składową
+print(pca_removed)
+ -->
+
+# Model
+Do wytrenowania najlepszego modelu wykorzystamy tuning hiperparametrów. Trzy kluczowe hiperparametry (mtry, min_n, trees) zostaną zoptymalizowane w procesie strojenia przez siatkę.
+Do treningu wykorzystane zostaną silnik ranger (wysokowydajna implementacja lasów losowych, dobrze przystosowana do dużych zbiorów danych) oraz zrównoleglenie obliczeń.
+```{r}
+#| message: false
+#| warning: false
+rf_model <- rand_forest(
+    mode = "regression",
+    mtry = tune(),
+    min_n = tune(),
+    trees = tune()
+) |>
+    set_engine("ranger",
+        importance = "impurity",
+        num.threads = parallel::detectCores() - 1
+    )
+```
+
+# Workflow
+Workflow łączy proces przetwarzania danych z receptury i model lasów losowych, upraszczając obsługę modelowania.
+```{r}
+#| message: false
+#| warning: false
+rf_workflow <- workflow() |>
+    add_recipe(rf_recipe) |>
+    add_model(rf_model)
+```
+
+# Siatka do tuningu hiperparametrów
+Określa przestrzeń hiperparametrów do przetestowania w celu znalezienia optymalnych wartości mtry, min_n i trees.
+Wygenerowana siatka obejmuje wszystkie kombinacje parametrów w określonych zakresach i poziomach.
+```{r}
+#| message: false
+#| warning: false
+rf_grid <- grid_regular(
+    mtry(range = c(2, 12)),
+    min_n(range = c(1, 12)),
+    trees(range = c(100, 400)),
+    levels = 5
+)
+```
+
+# Ustawienie kontroli pozwoli monitorować postęp oraz zbierać metryki
+
+```{r}
+#| message: false
+#| warning: false
+control <- control_grid(verbose = TRUE, save_pred = TRUE, parallel_over = "everything")
+```
+
+# Kroswalidacka, stratyfikacja w celu zrównoważenia dystrybucji
+```{r}
+#| message: false
+#| warning: false
+cv_folds <- vfold_cv(train_data, v = 5, strata = grimm_pm10)
+```
+
+# Tuning lasu losowego poprzez ocenianie go na siatce parametrów 
+```{r}
+#| message: false
+#| warning: false
+rf_res <- rf_workflow |>
+    tune_grid(
+        resamples = cv_folds,
+        grid = rf_grid,
+        control = control
+    )
+```
+
+# Wybieramy najlepszy model bazując na RMSE (Root Mean Square Error)
+```{r}
+#| message: false
+#| warning: false
+best_rf <- rf_res |>
+    select_best(metric = "rmse")
+```
+
+
+# Dopasowanie modelu losowego lasu na podstawie wcześniej wybranych najlepszych hiperparametrów
+```{r}
+#| message: false
+#| warning: false
+rf_fit <- rf_workflow |>
+    finalize_workflow(best_rf) |>
+    fit(data = train_data)
+```
+
+
+# Tak prezentuje się ważność danych naszego modelu
+```{r}
+#| message: false
+#| warning: false
+vip(rf_fit$fit$fit, num_features = 10)
+```
+
+# Zapisanie modelu
+```{r}
+#| message: false
+#| warning: false
+save(rf_fit, file = "rf_fit.RData")
+```
+
+# Wartości przewidywane na zbiorze testowym
+```{r}
+#| message: false
+#| warning: false
+predictions <- rf_fit |>
+    predict(new_data = test_data) |>
+    bind_cols(test_data)
+```
+
+# Ocena wydajności modelu za pomocą metryk 
+```{r}
+#| message: false
+#| warning: false
+model_metrics <- predictions |>
+    metrics(truth = grimm_pm10, estimate = .pred)
+print(model_metrics)
+```
+
+
+# Wykres porównujący wartości przewidziane z rzeczywistymi
+```{r}
+#| message: false
+#| warning: false
+predictions |>
+    ggplot(aes(x = grimm_pm10, y = .pred)) +
+    geom_point(alpha = 0.6, color = "#7ec2ed") +
+    geom_abline(slope = 1, intercept = 0, color = "#7b32a8", linetype = "dashed") +
+    labs(
+        title = "Predictions vs. Truth",
+        x = "Truth (Actual Values)",
+        y = "Predictions"
+    ) +
+    geom_abline(slope = 0.5, intercept = 0, color = "#7b32a8", linetype = "dashed") +
+    labs(
+        title = "Predictions vs. Truth",
+        x = "Truth (Actual Values)",
+        y = "Predictions"
+    ) +
+    geom_abline(slope = 2, intercept = 0, color = "#7b32a8", linetype = "dashed") +
+    labs(
+        title = "Predictions vs. Truth",
+        x = "Truth (Actual Values)",
+        y = "Predictions"
+    ) +
+    theme_minimal()
+```
+# Zapisanie prognoz oraz workflow
+```{r}
+#| message: false
+#| warning: false
+save(predictions, file = "predictions.RData")
+save(rf_workflow, file = "rf_workflow.RData")
+```
+
+<!--
+# PCA
+#   <chr>   <chr>          <dbl>
+# 1 rmse    standard       6.40
+# 2 rsq     standard       0.964
+# 3 mae     standard       4.58
+
+# Corr
+#   .metric .estimator .estimate
+#   <chr>   <chr>          <dbl>
+# 1 rmse    standard       6.30
+# 2 rsq     standard       0.965
+# 3 mae     standard       4.73 
+-->
