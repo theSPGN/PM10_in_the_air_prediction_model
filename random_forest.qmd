@@ -308,11 +308,4 @@ save(rf_workflow, file = "rf_workflow.RData")
 # 1 rmse    standard       6.30
 # 2 rsq     standard       0.965
 # 3 mae     standard       4.73 
-
-
-  <chr>   <chr>          <dbl>
-1 rmse    standard       7.63 
-2 rsq     standard       0.943
-3 mae     standard       5.11 
-
 -->
