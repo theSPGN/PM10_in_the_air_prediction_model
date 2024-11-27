@@ -165,6 +165,13 @@ Używałam RStudio w celu pracy z R ze względu na wygodę. Do Gita i zabawy ze 
 
 ### Jakub
 
+Jeśli chodzi o narzędzia, z jakimi pracowałem, to cały projekt zrealizowałem w RStudio, które uważam za najlepsze narzędzie do pracy w R. Podczas pracy chciałem skorzystać z GitKraken, jednak ze względu na ograniczenia wynikające z pracy w organizacji miałem zablokowany dostęp. W związku z tym użyłem GitHub Desktop, które okazało się bardzo użytecznym narzędziem. Jest niezwykle łatwe w obsłudze i w pełni spełniło moje oczekiwania, więc na pewno będę korzystać z niego w przyszłości.
+
+Wszyscy pracowaliśmy na oddzielnych gałęziach, co uważam za świetne rozwiązanie. Dzięki temu mogliśmy unikać wzajemnych konfliktów w kodzie, a nasza praca była czytelna i łatwo dostępna dla całego zespołu.
+
+Jeśli chodzi o zespół i komunikację, trafiłem na wspaniałą grupę oraz bardzo dobrego lidera. W razie problemów zawsze znajdował czas na pomoc w realizacji zadań i przydzielał konkretne obowiązki. Wszystko odbywało się w przyjaznej i koleżeńskiej atmosferze, co znacząco ułatwiło współpracę i podniosło jej efektywność.
+
+Co najważniejsze, uważam, że na tym kursie nauczyłem się więcej niż na jakimkolwiek innym przedmiocie na studiach. Rozwinąłem swoje umiejętności w zakresie komunikacji, algorytmów SI oraz pracy z GitHubem i innymi narzędziami.
 
 ### Mateusz
 
