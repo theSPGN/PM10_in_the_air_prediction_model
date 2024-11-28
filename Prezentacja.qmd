@@ -1,23 +1,187 @@
 ---
-title: "Prezentacja finałowa"
-author: "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
-format: html
+mainfont: Lato
+title: "Prezentacja końcowa - zespół nr I"
+subtitle: "Zdalne Repozytoria i systemy kontroli wersji w projektach uczenia maszynowego"
+author: 
+  - "D. Kokot, M. Pruś, J. Wilk, M. Zajda"
+format:
+  html: 
+    theme: lightly,
+    fontcolor: rgb(78,61,66)
+    background-color: rgb(236,241,228)
+    toc: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "click to see code"
+    linestretch: 1.2
+    other-links:
+      - text: Repozytorium GitHub
+        href: https://github.com/ZRiSKW/g1_calpm
+code-link: true
+execute:
+  eval: true
+  warning: false
+  error: false
+  cache: false
 ---
 
-# Zespół
+```{=html}
+<style type="text/css"> body {text-align: justify} </style>
+```
+## **Zespół**
 
-# Opisanie narzędzi
+Zespół nr 1 składa się czterech członków z czterech różnych wydziałów AGH. Poniższa tabela zawiera informacje na temat podziału obowiązków oraz przypisanych modeli.
 
-# Opisanie problemu
+|     Osoba     | Wydział | Zakres obowiązków                                                                                                                                                                |    Przypisany model    | Wynik końcowy modelu R² |
+|:------------:|:------------:|:--------------|:------------:|:----------------:|
+|  Daria Kokot  |  WFiIS  | Współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu, sprawdzenie najlepszego modelu na danych z innych stacji, wspóltworzenie końcowego projektu w Quatro |     Random Forest      |          0.965          |
+|  Maria Pruś   | WGGiOŚ  | Współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu, wspóltworzenie końcowego projektu w Quatro                                                           |      Cubist rules      |          0.914          |
+|  Jakub Wilk   | WGGiIŚ  | Współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu                                                                                                       |     Decision Tree      |          0.911          |
+| Mateusz Zajda |  WIMiR  | Pre-processing danych, współuczestnictwo w analizie danych, stworzenie oraz przetestowanie modelu, zarządzanie zespołem, administracja repozytorium na GitHub                     | Extreme Gradient Boost |          0.940          |
 
-# Opisanie danych
+## **Cel projektu**
 
-# Wybrany model
-## Czemu ten jest super
+Celem projektu było stworzenie modelu i predykcja stężenia PM10 w powietrzu na podstawie dostarczonych danych. Zbiór danych zawierał daty pomiaru, pomiary cząstek z podziałem na frakcje, wartości temperatury oraz dane meteorologiczne. Dane, na których tworzony był model, pochodziły ze stacji monitoringu jakości powietrza przy al. Krasińskiego w Krakowie. Drugim otrzymanym zestawem danych był zestaw weryfikacyjny z danymi pochodzącymi z innej lokalizacji.
 
-## na czym polega
+Dydaktyczny zakres projektu w zakresie uczenia maszynowego
 
-## czemu inne są gorsze
+-   Analiza danych
+-   Utworzenie receptur modeli uczenia maszynowego
+-   Utworzenie modeli uczenia maszynowego
+-   Dopasowanie danych - trenowanie modelu
+-   Predykcja dla danych testowych oraz porównanie z rzeczywistymi wynikami
+-   Podsumowanie modeli oraz wybór najlepszego dla powierzonego zadania
+-   Sporządzenie prezentacji w formie pliku qmd (z generowalnym plikiem html)
 
-# Jak sobie radzi z resztą danych
+## **Opisanie narzędzi**
+
+### Komunikacja
+Zespół w celu komunikacji używał przede wszystkim chatu na <b><span style="color:#00693c; font-family:'Lato';">MS Teams</span></b>. Omawiane tam były sprawy bieżące, treść spotkań, luźniejsze uwagi, potrzeby odnośnie danych czy kodu. 
+W celu ***poważniejszej*** komunikacji na temat opracowyanego projektu tj. kodu służył <b><span style="color:#00693c; font-family:'Lato';">GitHub</span></b>, a mianowicie zakładane <b><span style="color:#a71930ff; font-family:'Lato';">issues</span></b>
+
+::: {.callout-note collapse=true}
+W początkowym stadium współpracy używane było jeszcze narzędzie dostarczane przez Microsoft tj. <b><span style="color:#00693c; font-family:'Lato';">Planner</span></b>, ale zamysł ten umarł samoistnie.
+:::
+### Kontrola wersji
+W celu pracy na projekcie z systemem kontroli wersji Git zespół używał, w zależności od osoby:
+
+* <b><span style="color:#00693c; font-family:'Lato';">Git Bash</span></b>
+* <b><span style="color:#00693c; font-family:'Lato';">GitHub Desktop</span></b>
+
+Każde z wyżej wymienionych narzędzi było jednak podlinkowane do zdalnego repozytorium na <b><span style="color:#00693c; font-family:'Lato';">GitHub</span></b>, co umożliwało płynną współpracę.
+
+### Praca z R
+W celu pracy z językiem R zespół używał, w zależności od osoby:
+
+* <b><span style="color:#00693c; font-family:'Lato';">RStudio</span></b>
+* <b><span style="color:#00693c; font-family:'Lato';">Visual Studio Code</span></b>
+
+Używana wersja języka R to 4.3.3. Używane pakiety różniły się w zależności od modelu, jednak wspólnym najważniejszym pakietem był <b><span style="color:#a71930ff; font-family:'Lato';">tidymodels</span></b>
+
+### Workflow
+
+Na pierwszym spotkaniu został ustalony wstępny workflow oraz zaplanowana praca. Jako że Agile nam niestraszny, po drodze nastąpiło kilka modyfikacji m. in. został opisany tylko najlepszy model (patrz sekcja <b>Wybrany Model</b>)
+![Pierwszy workflow](wf.png)
+Głównym założeniem był wstępny pre-processing danych, który wylądował potem na <i><b><span style="font-family:'Lato';">main</span></b></i>. Każdy model potem był opracowywany na osobnej gałęzi. Następnie wszystkie gałęzie z modelami zostały scalone. Ostatnią gałęzią, która powstała to <i><b><span style="font-family:'Lato';">QMD_project</span></b></i>, na której właśnie siedzę i opisuję ten projekt. Po wspólnej akceptacji gałąż ta zostanie scalona do <i><b><span style="font-family:'Lato';">main</span></b></i>.
+
+## **Opisanie danych**
+
+Pre-processing danych był wspólny dla całego zespołu i znajduje się on w pliku data_prep.R. W skrócie przygotowanie danych miało na celu załadowanie pliku ops.Rdata, usunięciu niepotrzebnych danych, podziale danych na zestawy treningowe, testowe, walidacyjne. Następnie połączono zbiór ops_data z ops_bam w celu przygotowania zestawu danych z innych stacji. Potrzebne dane zostały zapisane do pliku prepared_data.RData.
+
+Poniżej znajduje się wycinek danych treningowych mający na celu przybliżenie zmiennych.
+W zależności od modelu różne zmienne były wykorzystywane. Zmienną, która była oznaczona jako **output** to grimm_pm10.
+```{r}
+library(dplyr)
+library(DT)
+load("prepared_data.RData")
+data<-datatable(head(train_data))
+data
+```
+W celu lepszego zrozumienia danych zespół wspólnie omówił zestaw. Podstawą interpretacji była tabela korelacji krzyżowej uwzględniajaca zmienne liczbowe. Tabela ta pokazuje wartości korelacji pomiędzy poszczególnymi zmiennymi, co umożliwia lepsze zrozumienie jak zmieniają się zmienne i jakie informacje niosą.
+
+![Tabela kroskorelacji](cross_cor.jpg)
+Im komórka bardziej zielona tym korelacja jest większa (negatywna lub pozytywna). Kilka wspólnych wniosków, na których budowane były potem modele:
+
+* Najwyższą korelację z grimm_pm10 mają cząstki największych frakcji (n_0250-n_1000.
+* Cząstki największych frakcji są ze sobą wysoko skorelowane (niosą tę samą informację)
+* Wysoką (negatywną) korelacją odznacza się prędkość wiatru
+* Mniejsze frakcje cząstek również można pogrupować na te wysoko ze sobą skorelowane (n_0044-n_0100; n_0120-n_0200)
+
+::: {.callout-note collapse=true}
+Tak, użyty został do tego Excel. Nie żałuję niczego.
+:::
+
+## **Wybrany model Random Forest** 
+
+Jak pokazuje trening las losowy sprawdził się najlepiej w naszym badaniu. Wpływ na to mogły mieć następujące czynniki:
+
+- Las losowy jest algorytmem opartym na ensemble learning, czyli metodzie łączenia wyników wielu modeli w celu uzyskania lepszej ogólnej wydajności. Polega to na trenowaniu wielu drzew decyzyjnych na różnych podzbiorach danych. Następnie wyniki są agregowane. Zmniejsza ryzyko przeuczenia i poprawia stabilność modelu. 
+
+- Las losowy zwykle lepiej generalizuje niż drzewa decyzyjne. Szczególnie przy głębokich i złożonych architekturach drzew. Ponieważ las losowy łączy wyniki wielu drzew, ryzyko przeuczenia jest mniejsze. Las losowy jest bardziej odporny na różnorodne rodzaje danych, w tym dane z dużą zmiennością i szumem. 
+
+- Duża ilość zmiennych i interakcji międzu nimi są trudne do uchwycenia przez bardziej deterministyczne metody takie jak Cubist Rules czy proste drzewo decyzyjne. Z kolei las losowy, dzięki swojej strukturze ensemble, może lepiej uchwycić te zależności.
+
+- XGBoost jest jednym z najpotężniejszych algorytmów gradient boosting, często dającym bardzo dobre wyniki w różnych zadaniach, w naszym przykładzie sprawdził się bardzo podobnie do lasu losowego. Las losowy ma tendencję do bardziej stabilnych wyników bez zbyt dużej potrzeby kalibracji. Minimalna ‘wygrana’ lasu losowego mogła wynikać z nieodnalezienia optymalnych hiperparametrów XGBoost takich jak liczba drzew, współczynniki uczenia, czy maksymalna głębokość drzew.
+
+
+### Otrzymany wynik
+```{r}
+#| show: true
+#   .metric .estimator .estimate
+#   <chr>   <chr>          <dbl>
+# 1 rmse    standard       6.30
+# 2 rsq     standard       0.965
+# 3 mae     standard       4.73
+```
+
+## **Podsumowanie**
+
+Trochę o projekcie liczbowo: 
+
+* Liczba założonych <b><span style="color:#a71930ff; font-family:'Lato';">issue</span></b> na GitHub: 6
+
+* Liczba założonych <b><span style="font-family:'Lato';">pull request</span></b> na GitHub: 9
+
+* Liczba swtorzonych gałęzi: 6 
+
+* Pierwszy commit: 24.10
+
+* Ostatni commit: 21.11
+
+Poniżej koncowy graf Git naszego projektu zawierające wszystkie commity oraz gałęzie.
+
+![Końcowy graph](graph.png)
+
+W większości założenia z początkowego workflowu zostały spełnione. Zmianą jednak jest praca na jednej gałęzi dotyczącej projektu końcowego, zamiast tworzenia gałęzi dla każdego współautorów z osobna i potem merge z <i><b><span style="font-family:'Lato';">main</span></i></b>. Również końcowe poprawianie modeli odbywało się już na głównej gałęzi.
+
+## **Wnioski**
+
+### Daria
+
+Podczas kursu "Zdalne repozytoria i systemy kontroli wersji w projektach uczenia maszynowego" miałam okazję uczestniczyć w projekcie, którego celem było stworzenie modelu do predykcji stężenia PM10 w powietrzu na podstawie dostarczonych danych. Moją częścią zadania było zaprojektowanie i wdrożenie modelu opartego na algorytmie lasu losowego. Praca nad tym zagadnieniem pozwoliła mi rozwinąć umiejętności analizy danych, tworzenia modeli predykcyjnych oraz interpretacji wyników.
+Do zarządzania kodem korzystałam z Visual Studio Code, a w szczególności z rozszerzenia Git Graph, które dobrze znałam ze studiów oraz pracy. To narzędzie świetnie wspierało mnie w efektywnym zarządzaniu repozytorium. Umożliwiało intuicyjne śledzenie historii zmian, zarządzanie commitami i pracę z gałęziami, co znacznie ułatwiło współpracę w zespole.
+Pracowaliśmy na oddzielnych gałęziach, co okazało się bardzo wygodnym rozwiązaniem. Dzięki temu uniknęliśmy konfliktów w kodzie, a cały proces był przejrzysty i dobrze zorganizowany. Współpraca z zespołem przebiegała w przyjaznej i konstruktywnej atmosferze. Nasz lider skutecznie koordynował działania, jasno przydzielał zadania i zawsze był gotowy pomóc w razie trudności.
+Kurs był niezwykle wartościowy, zarówno pod względem technicznym, jak i organizacyjnym. Ugruntowałam swoją wiedzę na temat systemów kontroli wersji, takich jak Git, oraz zyskałam cenne doświadczenie w pracy zespołowej. Dodatkowo miałam okazję wykorzystać i rozwijać swoje umiejętności związane z algorytmami uczenia maszynowego. To było jedno z najbardziej praktycznych i rozwijających doświadczeń w mojej edukacji, które na pewno przyda się w przyszłej pracy zawodowej.
+
+### Maria
+
+Używałam RStudio w celu pracy z R ze względu na wygodę. Do Gita i zabawy ze zdalnym repozytorium używałam jednak GitHub Desktop - bardzo wygodne, całkiem czytelne, daje ostrzeżenia i wyskakujące okienka. Założyłam całe jedno issue dla siebie na GitHub dla bardzo głupiego błędu. Obyło się bez konfliktów, jednak w czasie pracy musiałam zaciągnąć do swojej gałęzi zmianę z main.
+
+### Jakub
+
+Jeśli chodzi o narzędzia, z jakimi pracowałem, to cały projekt zrealizowałem w RStudio, które uważam za najlepsze narzędzie do pracy w R. Podczas pracy chciałem skorzystać z GitKraken, jednak ze względu na ograniczenia wynikające z pracy w organizacji miałem zablokowany dostęp. W związku z tym użyłem GitHub Desktop, które okazało się bardzo użytecznym narzędziem. Jest niezwykle łatwe w obsłudze i w pełni spełniło moje oczekiwania, więc na pewno będę korzystać z niego w przyszłości.
+
+Wszyscy pracowaliśmy na oddzielnych gałęziach, co uważam za świetne rozwiązanie. Dzięki temu mogliśmy unikać wzajemnych konfliktów w kodzie, a nasza praca była czytelna i łatwo dostępna dla całego zespołu.
+
+Jeśli chodzi o zespół i komunikację, trafiłem na wspaniałą grupę oraz bardzo dobrego lidera. W razie problemów zawsze znajdował czas na pomoc w realizacji zadań i przydzielał konkretne obowiązki. Wszystko odbywało się w przyjaznej i koleżeńskiej atmosferze, co znacząco ułatwiło współpracę i podniosło jej efektywność.
+
+Co najważniejsze, uważam, że na tym kursie nauczyłem się więcej niż na jakimkolwiek innym przedmiocie na studiach. Rozwinąłem swoje umiejętności w zakresie komunikacji, algorytmów SI oraz pracy z GitHubem i innymi narzędziami.
+
+### Mateusz
+
+W projekcie użyłem jako IDE oprogramowania Visual Studio Code. Nie obyło się bez problemów, głównie związanych z formatowaniem plików qmd, niemniej nadal uważam go za najlepsze środowisko do tworzenia projektów ze względu na możliwość dostosowania jego działania pod własne zachcianki oraz uniwersalność korzystania z wielu języków (co jest niewątpliwą przewagą nad np. RStudio, Pycharm itd.). Niewątpliwym atutem, który również przesądził w kwestii wyboru tego środowiska, była możliwość synchronizacji wszystkich dodatków, szaty graficznej itd. na wielu urządzeniach. 
+
+Skorzystałem również z oprogramowania Git bash (git-scm.com), ze względu na przyzwyczajenie wynikające z używania terminala z systemów unixowych. Zainstalowanie tego programu pozwala na wyświetlenie layoutu bash'a również w terminalu vscode i ułatwia znacząco obsługę gita w przypadku wystąpienia konfliktów. 
+
+Do sporządzenia workflow projektu skorzystałem z programu MS Visio, który w przystępny sposób pozwala na tworzenie schematów blokowych.
 
