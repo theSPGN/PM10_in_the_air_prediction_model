@@ -134,7 +134,7 @@ Jak pokazuje trening las losowy sprawdził się najlepiej w naszym badaniu. Wpł
 # 3 mae     standard       4.73
 ```
 
-## Podsumowanie
+## **Podsumowanie**
 
 Trochę o projekcie liczbowo: 
 
@@ -154,14 +154,18 @@ Poniżej koncowy graf Git naszego projektu zawierające wszystkie commity oraz g
 
 W większości założenia z początkowego workflowu zostały spełnione. Zmianą jednak jest praca na jednej gałęzi dotyczącej projektu końcowego, zamiast tworzenia gałęzi dla każdego współautorów z osobna i potem merge z <i><b><span style="font-family:'Lato';">main</span></i></b>. Również końcowe poprawianie modeli odbywało się już na głównej gałęzi.
 
-## Wnioski
+## **Wnioski**
 
 ### Daria
 
+Podczas kursu "Zdalne repozytoria i systemy kontroli wersji w projektach uczenia maszynowego" miałam okazję uczestniczyć w projekcie, którego celem było stworzenie modelu do predykcji stężenia PM10 w powietrzu na podstawie dostarczonych danych. Moją częścią zadania było zaprojektowanie i wdrożenie modelu opartego na algorytmie lasu losowego. Praca nad tym zagadnieniem pozwoliła mi rozwinąć umiejętności analizy danych, tworzenia modeli predykcyjnych oraz interpretacji wyników.
+Do zarządzania kodem korzystałam z Visual Studio Code, a w szczególności z rozszerzenia Git Graph, które dobrze znałam ze studiów oraz pracy. To narzędzie świetnie wspierało mnie w efektywnym zarządzaniu repozytorium. Umożliwiało intuicyjne śledzenie historii zmian, zarządzanie commitami i pracę z gałęziami, co znacznie ułatwiło współpracę w zespole.
+Pracowaliśmy na oddzielnych gałęziach, co okazało się bardzo wygodnym rozwiązaniem. Dzięki temu uniknęliśmy konfliktów w kodzie, a cały proces był przejrzysty i dobrze zorganizowany. Współpraca z zespołem przebiegała w przyjaznej i konstruktywnej atmosferze. Nasz lider skutecznie koordynował działania, jasno przydzielał zadania i zawsze był gotowy pomóc w razie trudności.
+Kurs był niezwykle wartościowy, zarówno pod względem technicznym, jak i organizacyjnym. Ugruntowałam swoją wiedzę na temat systemów kontroli wersji, takich jak Git, oraz zyskałam cenne doświadczenie w pracy zespołowej. Dodatkowo miałam okazję wykorzystać i rozwijać swoje umiejętności związane z algorytmami uczenia maszynowego. To było jedno z najbardziej praktycznych i rozwijających doświadczeń w mojej edukacji, które na pewno przyda się w przyszłej pracy zawodowej.
 
 ### Maria
 
-Używałam RStudio w celu pracy z R ze względu na wygodę. Do Gita i zabawy ze zdalnym repozytorium używałam jednak GitHub Desktop - bardzo wygodne, całkiem czytelne, daje ostrzeżenia i wyskakujące okienka zanim się zrobi coś głupiego - dlatego na plus. Założyłam całe jedno issue dla siebie na GitHub dla bardzo głupiego błędu. Obyło się bez konfliktów, jednak w czasie pracy musiałam zaciągnąć do swojej gałęzi zmianę z main.
+Używałam RStudio w celu pracy z R ze względu na wygodę. Do Gita i zabawy ze zdalnym repozytorium używałam jednak GitHub Desktop - bardzo wygodne, całkiem czytelne, daje ostrzeżenia i wyskakujące okienka. Założyłam całe jedno issue dla siebie na GitHub dla bardzo głupiego błędu. Obyło się bez konfliktów, jednak w czasie pracy musiałam zaciągnąć do swojej gałęzi zmianę z main.
 
 ### Jakub
 
